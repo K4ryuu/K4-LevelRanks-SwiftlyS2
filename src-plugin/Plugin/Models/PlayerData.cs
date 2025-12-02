@@ -17,6 +17,7 @@ public sealed class PlayerData
 
 	/// <summary>Steam ID in STEAM_X:X:XXXXXX format (stored as string in DB)</summary>
 	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Column("steam")]
 	public string Steam { get; set; } = "";
 

@@ -128,10 +128,12 @@ public sealed class PlayerWeaponStats
 public sealed class WeaponStatRecord
 {
 	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Column("steam")]
 	public string Steam { get; set; } = "";
 
 	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Column("classname")]
 	public string Classname { get; set; } = "";
 

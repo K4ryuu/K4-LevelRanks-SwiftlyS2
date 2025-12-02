@@ -17,6 +17,7 @@ public sealed class HitData
 
 	/// <summary>Steam ID in STEAM_X:X:XXXXXX format</summary>
 	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Column("SteamID")]
 	public string Steam { get; set; } = "";
 

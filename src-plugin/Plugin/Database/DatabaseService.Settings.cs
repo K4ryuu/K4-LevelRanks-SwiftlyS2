@@ -120,6 +120,7 @@ public sealed partial class Plugin
 public sealed class PlayerSettings
 {
 	[Key]
+	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Column("steam")]
 	public string Steam { get; set; } = "";
 

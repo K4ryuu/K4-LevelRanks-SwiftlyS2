@@ -11,7 +11,7 @@ namespace K4Ranks;
 
 [PluginMetadata(
 	Id = "k4.levelranks",
-	Version = "1.0.1",
+	Version = "1.0.2",
 	Name = "K4 - Level Ranks",
 	Author = "K4ryuu",
 	Description = "Experience-based ranking system with configurable ranks, detailed player statistics, weapon tracking, and hit analysis for CS2."
