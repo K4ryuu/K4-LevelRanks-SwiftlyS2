@@ -1,0 +1,158 @@
+name: Build and Release
+
+on:
+  push:
+  workflow_dispatch:
+
+concurrency:
+  group: release
+  cancel-in-progress: true
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build]')
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from PluginMetadata
+        id: version
+        run: |
+          # Find Version = "x.y.z" in any .cs file
+          VERSION=$(grep -roh 'Version *= *"[^"]*"' --include="*.cs" | head -1 | sed 's/.*"\(.*\)".*/\1/')
+
+          if [ -z "$VERSION" ]; then
+            echo "::error::Could not find PluginMetadata Version"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Found version: $VERSION"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+          cache: true
+          cache-dependency-path: '**/*.csproj'
+
+      - name: Restore and Publish
+        run: |
+          # Find solution or project file
+          if [ -f *.sln ]; then
+            PROJECT=$(ls *.sln | head -1)
+          else
+            PROJECT=$(find . -name "*.csproj" | head -1)
+          fi
+
+          if [ -z "$PROJECT" ]; then
+            echo "::error::No .sln or .csproj found"
+            exit 1
+          fi
+
+          echo "Building: $PROJECT"
+          dotnet restore "$PROJECT"
+          dotnet publish "$PROJECT" -c Release
+
+      - name: Find release zip
+        id: zip
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+
+          # Find the zip created by dotnet publish (csproj CreateZip target)
+          ZIP_FILE=$(find . -name "*.zip" -type f | head -1)
+
+          if [ -z "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
+            echo "::error::No .zip file found after build"
+            exit 1
+          fi
+
+          # Rename to standard format
+          ZIP_NAME="${REPO_NAME}-v${VERSION}.zip"
+          mv "$ZIP_FILE" "$ZIP_NAME"
+
+          echo "zip_name=$ZIP_NAME" >> $GITHUB_OUTPUT
+          echo "Found and renamed to: $ZIP_NAME"
+
+      - name: Extract changelog
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          CHANGELOG=""
+
+          # Extract changelog section if file exists
+          if [ -f "CHANGELOG.md" ]; then
+            CHANGELOG=$(awk -v ver="$VERSION" '
+              /^## \[/ {
+                if (found) exit
+                if ($0 ~ "\\[" ver "\\]") { found=1; next }
+              }
+              found { print }
+            ' CHANGELOG.md)
+          fi
+
+          if [ -z "$CHANGELOG" ]; then
+            CHANGELOG="Release v$VERSION"
+          fi
+
+          # Get previous tag for compare URL
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+
+          # Build release body
+          {
+            echo "body<<EOF"
+            echo "$CHANGELOG"
+            echo ""
+            if [ -n "$PREV_TAG" ]; then
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...v${VERSION}"
+            fi
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Create or Update GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          REPO_NAME="${{ github.event.repository.name }}"
+          ZIP_NAME="${{ steps.zip.outputs.zip_name }}"
+          TAG="v${VERSION}"
+
+          # Auto-detect pre-release (contains -)
+          PRERELEASE_FLAG=""
+          if [[ "$VERSION" == *-* ]]; then
+            PRERELEASE_FLAG="--prerelease"
+            echo "Detected pre-release version"
+          fi
+
+          # Check if release already exists
+          if gh release view "$TAG" &>/dev/null; then
+            echo "Release $TAG exists - updating..."
+
+            gh release edit "$TAG" \
+              --title "${REPO_NAME} | ${TAG}" \
+              --notes "${{ steps.changelog.outputs.body }}" \
+              $PRERELEASE_FLAG
+
+            gh release upload "$TAG" "${ZIP_NAME}" --clobber
+
+            echo "Release $TAG updated successfully!"
+          else
+            echo "Creating new release $TAG..."
+
+            gh release create "$TAG" \
+              --title "${REPO_NAME} | ${TAG}" \
+              --notes "${{ steps.changelog.outputs.body }}" \
+              $PRERELEASE_FLAG \
+              "${ZIP_NAME}"
+
+            echo "Release $TAG created successfully!"
+          fi
