@@ -36,40 +36,40 @@ public sealed partial class Plugin
 	private void InitializeEventHandlers()
 	{
 		_playerDeathHandler = new PlayerDeathHandler(
-			Config, Points, Modules,
+			Config.CurrentValue, Points.CurrentValue, Modules.CurrentValue,
 			PlayerData.GetPlayerData,
 			PlayerData.ModifyPoints,
 			ShouldProcessPoints
 		);
 
 		_playerHurtHandler = new PlayerHurtHandler(
-			Config, Modules,
+			Config.CurrentValue, Modules.CurrentValue,
 			PlayerData.GetPlayerData,
 			ShouldProcessPoints
 		);
 
 		_weaponFireHandler = new WeaponFireHandler(
-			Modules,
+			Modules.CurrentValue,
 			PlayerData.GetPlayerData,
 			ShouldProcessPoints
 		);
 
 		_bombEventsHandler = new BombEventsHandler(
-			Core, Points,
+			Core, Points.CurrentValue,
 			PlayerData.GetPlayerData,
 			PlayerData.ModifyPoints,
 			ShouldProcessPoints
 		);
 
 		_hostageEventsHandler = new HostageEventsHandler(
-			Core, Points,
+			Core, Points.CurrentValue,
 			PlayerData.GetPlayerData,
 			PlayerData.ModifyPoints,
 			ShouldProcessPoints
 		);
 
 		_roundEventsHandler = new RoundEventsHandler(
-			Core, Points,
+			Core, Points.CurrentValue,
 			PlayerData.GetPlayerData,
 			PlayerData.ModifyPoints,
 			ShouldProcessPoints
@@ -80,12 +80,12 @@ public sealed partial class Plugin
 	{
 		_playtimeReward = new PlaytimeReward(
 			Core,
-			Points,
+			Points.CurrentValue,
 			PlayerData.GetPlayerData,
 			PlayerData.ModifyPoints
 		);
 
-		if (Points.PlaytimePoints > 0 && Points.PlaytimeMinutes > 0)
+		if (Points.CurrentValue.PlaytimePoints > 0 && Points.CurrentValue.PlaytimeMinutes > 0)
 			Core.Scheduler.RepeatBySeconds(30f, CheckPlaytimeRewards);
 	}
 
@@ -201,10 +201,10 @@ public sealed partial class Plugin
 			if (data == null || !data.IsLoaded)
 				continue;
 
-			if (Config.Points.KillstreakResetOnRoundEnd)
+			if (Config.CurrentValue.Points.KillstreakResetOnRoundEnd)
 				data.ResetKillstreak();
 
-			if (Config.Points.RoundEndSummary)
+			if (Config.CurrentValue.Points.RoundEndSummary)
 				PlayerData.ShowRoundSummary(player);
 		}
 	}
@@ -213,14 +213,14 @@ public sealed partial class Plugin
 
 	private bool ShouldProcessPoints()
 	{
-		if (IsWarmup && !Config.Rank.WarmupPoints)
+		if (IsWarmup && !Config.CurrentValue.Rank.WarmupPoints)
 			return false;
 
 		var playerCount = Core.PlayerManager
 			.GetAllPlayers()
 			.Count(p => p.IsValid && !p.IsFakeClient);
 
-		return playerCount >= Config.Rank.MinPlayers;
+		return playerCount >= Config.CurrentValue.Rank.MinPlayers;
 	}
 
 	private void CheckPlaytimeRewards()

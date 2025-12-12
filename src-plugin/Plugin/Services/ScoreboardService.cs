@@ -23,10 +23,10 @@ public sealed class ScoreboardService(Plugin plugin)
 
 		_isRunning = true;
 
-		if (plugin.Config.Scoreboard.UseRanks)
+		if (plugin.Config.CurrentValue.Scoreboard.UseRanks)
 			_core.Event.OnTick += UpdateScoreboards;
 
-		if (plugin.Config.Scoreboard.RevealAllInterval > 0)
+		if (plugin.Config.CurrentValue.Scoreboard.RevealAllInterval > 0)
 			StartRevealAllTimer();
 	}
 
@@ -43,7 +43,7 @@ public sealed class ScoreboardService(Plugin plugin)
 
 	private void StartRevealAllTimer()
 	{
-		var interval = Math.Max(plugin.Config.Scoreboard.RevealAllInterval, 1f);
+		var interval = Math.Max(plugin.Config.CurrentValue.Scoreboard.RevealAllInterval, 1f);
 
 		_core.Scheduler.DelayBySeconds(interval, () =>
 		{
@@ -77,13 +77,13 @@ public sealed class ScoreboardService(Plugin plugin)
 
 	private void UpdateScoreboards()
 	{
-		if (!plugin.Config.Scoreboard.UseRanks)
+		if (!plugin.Config.CurrentValue.Scoreboard.UseRanks)
 			return;
 
-		var mode = plugin.Config.Scoreboard.RankMode;
-		var rankMax = plugin.Config.Scoreboard.CustomRankMax;
-		var rankBase = plugin.Config.Scoreboard.CustomRankBase;
-		var rankMargin = plugin.Config.Scoreboard.CustomRankMargin;
+		var mode = plugin.Config.CurrentValue.Scoreboard.RankMode;
+		var rankMax = plugin.Config.CurrentValue.Scoreboard.CustomRankMax;
+		var rankBase = plugin.Config.CurrentValue.Scoreboard.CustomRankBase;
+		var rankMargin = plugin.Config.CurrentValue.Scoreboard.CustomRankMargin;
 
 		foreach (var player in _core.PlayerManager.GetAllPlayers())
 		{

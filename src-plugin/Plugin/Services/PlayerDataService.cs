@@ -48,7 +48,7 @@ public sealed partial class Plugin
 
 				_playerData[steamId64] = data;
 
-				if (_plugin.Config.Scoreboard.Clantags)
+				if (_plugin.Config.CurrentValue.Scoreboard.Clantags)
 				{
 					Core.Scheduler.NextWorldUpdate(() =>
 					{
@@ -69,7 +69,7 @@ public sealed partial class Plugin
 
 			if (data == null)
 			{
-				var startPoints = _plugin.Config.Rank.StartPoints;
+				var startPoints = _plugin.Config.CurrentValue.Rank.StartPoints;
 				return new PlayerData
 				{
 					Steam = visibleSteamId,
@@ -98,7 +98,7 @@ public sealed partial class Plugin
 
 		private async Task<int> LoadWeaponStats(PlayerData data, string visibleSteamId)
 		{
-			if (!_plugin.Modules.WeaponStatsEnabled)
+			if (!_plugin.Modules.CurrentValue.WeaponStatsEnabled)
 				return 0;
 
 			var weaponStats = await _plugin.Database.LoadWeaponStatsAsync(visibleSteamId);
@@ -109,7 +109,7 @@ public sealed partial class Plugin
 
 		private async Task LoadHitData(PlayerData data, string visibleSteamId)
 		{
-			if (!_plugin.Modules.HitStatsEnabled)
+			if (!_plugin.Modules.CurrentValue.HitStatsEnabled)
 				return;
 
 			var hitData = await _plugin.Database.LoadHitDataAsync(visibleSteamId);
@@ -131,10 +131,10 @@ public sealed partial class Plugin
 			if (data.Settings.IsDirty)
 				await _plugin.Database.SavePlayerSettingsAsync(data.Steam, data.Settings);
 
-			if (_plugin.Modules.WeaponStatsEnabled && data.WeaponStatsDirty)
+			if (_plugin.Modules.CurrentValue.WeaponStatsEnabled && data.WeaponStatsDirty)
 				await _plugin.Database.SaveWeaponStatsAsync(data.Steam, data.WeaponStats.GetAll());
 
-			if (_plugin.Modules.HitStatsEnabled && data.HitDataDirty)
+			if (_plugin.Modules.CurrentValue.HitStatsEnabled && data.HitDataDirty)
 				await _plugin.Database.SaveHitDataAsync(data.HitData);
 		}
 
@@ -173,7 +173,7 @@ public sealed partial class Plugin
 
 		private async Task SaveAllWeaponStats(List<PlayerData> loadedPlayers)
 		{
-			if (!_plugin.Modules.WeaponStatsEnabled)
+			if (!_plugin.Modules.CurrentValue.WeaponStatsEnabled)
 				return;
 
 			foreach (var data in loadedPlayers.Where(p => p.WeaponStatsDirty))
@@ -182,7 +182,7 @@ public sealed partial class Plugin
 
 		private async Task SaveAllHitData(List<PlayerData> loadedPlayers)
 		{
-			if (!_plugin.Modules.HitStatsEnabled)
+			if (!_plugin.Modules.CurrentValue.HitStatsEnabled)
 				return;
 
 			foreach (var data in loadedPlayers.Where(p => p.HitDataDirty))
@@ -207,18 +207,18 @@ public sealed partial class Plugin
 			data.IsDirty = true;
 			var newRank = _plugin.Ranks.GetRank(data.Points);
 
-			if (_plugin.Config.Scoreboard.Clantags && oldRank.Name != newRank.Name)
+			if (_plugin.Config.CurrentValue.Scoreboard.Clantags && oldRank.Name != newRank.Name)
 				UpdatePlayerClanTag(player, data);
 
-			if (_plugin.Config.Scoreboard.ScoreSync)
+			if (_plugin.Config.CurrentValue.Scoreboard.ScoreSync)
 			{
 				player.Controller?.Score = data.Points;
 				player.Controller?.ScoreUpdated();
 			}
 
-			if (showMessage && !_plugin.Config.Points.RoundEndSummary && data.PointMessagesEnabled)
+			if (showMessage && !_plugin.Config.CurrentValue.Points.RoundEndSummary && data.PointMessagesEnabled)
 			{
-				var displayName = _plugin.Config.Points.ShowPlayerNames ? otherPlayerName : null;
+				var displayName = _plugin.Config.CurrentValue.Points.ShowPlayerNames ? otherPlayerName : null;
 				ShowPointMessage(player, amount, reason, displayName);
 			}
 
@@ -234,18 +234,18 @@ public sealed partial class Plugin
 			if (amount <= 0)
 				return amount;
 
-			if (_plugin.Config.Vip.Multiplier <= 1.0 || _plugin.Config.Vip.Flags.Count == 0)
+			if (_plugin.Config.CurrentValue.Vip.Multiplier <= 1.0 || _plugin.Config.CurrentValue.Vip.Flags.Count == 0)
 				return amount;
 
 			if (!IsVipPlayer(player.SteamID))
 				return amount;
 
-			return (int)(amount * _plugin.Config.Vip.Multiplier);
+			return (int)(amount * _plugin.Config.CurrentValue.Vip.Multiplier);
 		}
 
 		private bool IsVipPlayer(ulong steamId)
 		{
-			return _plugin.Config.Vip.Flags.Any(flag =>
+			return _plugin.Config.CurrentValue.Vip.Flags.Any(flag =>
 				Core.Permission.PlayerHasPermission(steamId, flag)
 			);
 		}

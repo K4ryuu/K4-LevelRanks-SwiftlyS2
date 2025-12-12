@@ -15,25 +15,25 @@ public sealed partial class Plugin
 
 	private void RegisterCommands()
 	{
-		_menuManager = new MenuManager(Database, Modules, Ranks);
+		_menuManager = new MenuManager(Database, Modules.CurrentValue, Ranks);
 
 		// Player commands
-		RegisterCommandWithAliases(Commands.Rank, OnRankCommand);
-		RegisterCommandWithAliases(Commands.Ranks, OnRanksCommand);
-		RegisterCommandWithAliases(Commands.Top, OnTopCommand);
-		RegisterCommandWithAliases(Commands.ResetMyRank, OnResetMyRankCommand);
-		RegisterCommandWithAliases(Commands.ToggleMessages, OnToggleMessagesCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.Rank, OnRankCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.Ranks, OnRanksCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.Top, OnTopCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.ResetMyRank, OnResetMyRankCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.ToggleMessages, OnToggleMessagesCommand);
 
 		// Admin commands
-		RegisterCommandWithAliases(Commands.SetPoints, OnSetPointsCommand);
-		RegisterCommandWithAliases(Commands.GivePoints, OnGivePointsCommand);
-		RegisterCommandWithAliases(Commands.RemovePoints, OnRemovePointsCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.SetPoints, OnSetPointsCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.GivePoints, OnGivePointsCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.RemovePoints, OnRemovePointsCommand);
 
 		// Stat submenu commands
-		RegisterCommandWithAliases(Commands.Stats, OnStatsCommand);
-		RegisterCommandWithAliases(Commands.WeaponStats, OnWeaponStatsCommand);
-		RegisterCommandWithAliases(Commands.HitStats, OnHitStatsCommand);
-		RegisterCommandWithAliases(Commands.Settings, OnSettingsCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.Stats, OnStatsCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.WeaponStats, OnWeaponStatsCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.HitStats, OnHitStatsCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.Settings, OnSettingsCommand);
 	}
 
 	private static void RegisterCommandWithAliases(CommandConfig config, ICommandService.CommandListener handler)
@@ -115,7 +115,7 @@ public sealed partial class Plugin
 		var visibleSteamId = SteamIdParser.ToSteamId(player.SteamID);
 		await Database.ResetPlayerAsync(visibleSteamId);
 
-		data.Reset(Config.Rank.StartPoints);
+		data.Reset(Config.CurrentValue.Rank.StartPoints);
 
 		Core.Scheduler.NextWorldUpdate(() =>
 		{
@@ -282,7 +282,7 @@ public sealed partial class Plugin
 		if (player == null || !player.IsValid)
 			return;
 
-		if (!Modules.WeaponStatsEnabled)
+		if (!Modules.CurrentValue.WeaponStatsEnabled)
 			return;
 
 		var data = PlayerData.GetPlayerData(player);
@@ -303,7 +303,7 @@ public sealed partial class Plugin
 		if (player == null || !player.IsValid)
 			return;
 
-		if (!Modules.HitStatsEnabled)
+		if (!Modules.CurrentValue.HitStatsEnabled)
 			return;
 
 		var data = PlayerData.GetPlayerData(player);
@@ -356,7 +356,7 @@ public sealed partial class Plugin
 
 	private void UpdatePlayerClanTag(IPlayer player, PlayerData data)
 	{
-		if (!Config.Scoreboard.Clantags)
+		if (!Config.CurrentValue.Scoreboard.Clantags)
 			return;
 
 		var rank = Ranks.GetRank(data.Points);

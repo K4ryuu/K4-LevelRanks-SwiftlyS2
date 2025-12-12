@@ -77,14 +77,14 @@ public sealed class CommandsConfig
 	public CommandConfig WeaponStats { get; set; } = new()
 	{
 		Command = "weaponstats",
-		Aliases = ["ws"],
+		Aliases = [],
 		Permission = ""
 	};
 
 	public CommandConfig HitStats { get; set; } = new()
 	{
 		Command = "hitstats",
-		Aliases = ["hs"],
+		Aliases = [],
 		Permission = ""
 	};
 

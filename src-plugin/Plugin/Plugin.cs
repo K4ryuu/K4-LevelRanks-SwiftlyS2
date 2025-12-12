@@ -5,13 +5,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Plugins;
-using SwiftlyS2.Shared.SchemaDefinitions;
 
 namespace K4Ranks;
 
 [PluginMetadata(
 	Id = "k4.levelranks",
-	Version = "1.0.2",
+	Version = "1.0.3",
 	Name = "K4 - Level Ranks",
 	Author = "K4ryuu",
 	Description = "Experience-based ranking system with configurable ranks, detailed player statistics, weapon tracking, and hit analysis for CS2."
@@ -24,11 +23,11 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 
 	/* ==================== Configurations ==================== */
 
-	internal PluginConfig Config { get; private set; } = null!;
-	internal PointsConfig Points { get; private set; } = null!;
-	internal RanksConfig RanksConfig { get; private set; } = null!;
-	internal CommandsConfig Commands { get; private set; } = null!;
-	internal ModuleConfig Modules { get; private set; } = null!;
+	internal IOptionsMonitor<PluginConfig> Config { get; private set; } = null!;
+	internal IOptionsMonitor<PointsConfig> Points { get; private set; } = null!;
+	internal IOptionsMonitor<RanksConfig> RanksConfig { get; private set; } = null!;
+	internal IOptionsMonitor<CommandsConfig> Commands { get; private set; } = null!;
+	internal IOptionsMonitor<ModuleConfig> Modules { get; private set; } = null!;
 
 	/* ==================== Services ==================== */
 
@@ -39,13 +38,7 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 
 	/* ==================== Game Rules ==================== */
 
-	private CCSGameRules? GetGameRules()
-	{
-		var proxy = Core.EntitySystem.GetAllEntitiesByDesignerName<CCSGameRulesProxy>("cs_gamerules").FirstOrDefault();
-		return proxy?.GameRules;
-	}
-
-	internal bool IsWarmup => GetGameRules()?.WarmupPeriod == true;
+	internal bool IsWarmup => Core.EntitySystem.GetGameRules()?.WarmupPeriod == true;
 
 	/* ==================== Plugin Lifecycle ==================== */
 
@@ -69,13 +62,13 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 	private void InitializeServices()
 	{
 		Database = new DatabaseService(
-			Config.Database.Connection,
-			Config.Database.PurgeDays,
-			Config.Rank.StartPoints,
-			Modules
+			Config.CurrentValue.Database.Connection,
+			Config.CurrentValue.Database.PurgeDays,
+			Config.CurrentValue.Rank.StartPoints,
+			Modules.CurrentValue
 		);
 
-		Ranks = new RankService(RanksConfig);
+		Ranks = new RankService(RanksConfig.CurrentValue);
 		PlayerData = new PlayerDataService(this);
 		Scoreboard = new ScoreboardService(this);
 	}
@@ -102,28 +95,26 @@ public sealed partial class Plugin(ISwiftlyCore core) : BasePlugin(core)
 
 	private void InitializeConfigs()
 	{
-		Config = BuildConfigService<PluginConfig>("config.json", "K4Ranks").Value;
-		Points = BuildConfigService<PointsConfig>("points.json", "K4RanksPoints").Value;
-		RanksConfig = BuildConfigService<RanksConfig>("ranks.json", "K4RanksRanks").Value;
-		Commands = BuildConfigService<CommandsConfig>("commands.json", "K4RanksCommands").Value;
-		Modules = BuildConfigService<ModuleConfig>("modules.json", "K4RanksModules").Value;
+		Config = BuildConfigService<PluginConfig>("config.json", "K4Ranks");
+		Points = BuildConfigService<PointsConfig>("points.json", "K4RanksPoints");
+		RanksConfig = BuildConfigService<RanksConfig>("ranks.json", "K4RanksRanks");
+		Commands = BuildConfigService<CommandsConfig>("commands.json", "K4RanksCommands");
+		Modules = BuildConfigService<ModuleConfig>("modules.json", "K4RanksModules");
 	}
 
-	private IOptions<T> BuildConfigService<T>(string fileName, string sectionName) where T : class, new()
+	private IOptionsMonitor<T> BuildConfigService<T>(string fileName, string sectionName) where T : class, new()
 	{
 		Core.Configuration
 			.InitializeJsonWithModel<T>(fileName, sectionName)
 			.Configure(cfg => cfg.AddJsonFile(Core.Configuration.GetConfigPath(fileName), optional: false, reloadOnChange: true));
 
-		// Setup DI with validation on startup
 		ServiceCollection services = new();
 		services.AddSwiftly(Core)
-			.AddOptionsWithValidateOnStart<T>()
+			.AddOptions<T>()
 			.BindConfiguration(sectionName);
 
-		// Build and validate
 		var provider = services.BuildServiceProvider();
-		return provider.GetRequiredService<IOptions<T>>();
+		return provider.GetRequiredService<IOptionsMonitor<T>>();
 	}
 
 	/* ==================== Shared API ==================== */

@@ -127,7 +127,7 @@ public sealed partial class Plugin
 			data.Points = points;
 			data.IsDirty = true;
 
-			if (_plugin.Config.Scoreboard.Clantags)
+			if (_plugin.Config.CurrentValue.Scoreboard.Clantags)
 				_plugin.PlayerData.UpdatePlayerClanTag(player, data);
 		}
 
