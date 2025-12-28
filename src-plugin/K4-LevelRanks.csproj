@@ -50,7 +50,11 @@
 		<Copy SourceFiles="$(MSBuildThisFileDirectory)../src-shared/build/$(TargetFramework)/K4-LevelRanksSharedApi.dll" DestinationFolder="$(MSBuildThisFileDirectory)resources/exports/" />
 	</Target>
 
-	<Target Name="CreateZip" AfterTargets="Publish">
-		<ZipDirectory SourceDirectory="$(PublishDir)../" DestinationFile="$(OutputPath)../$(AssemblyName).zip" Overwrite="true" />
+	<Target Name="CopySharedApiToPublish" AfterTargets="Publish">
+		<Copy SourceFiles="$(MSBuildThisFileDirectory)../src-shared/build/$(TargetFramework)/K4-LevelRanksSharedApi.dll" DestinationFolder="$(PublishDir)resources/exports/" />
+	</Target>
+
+	<Target Name="CreateZip" AfterTargets="CopySharedApiToPublish" DependsOnTargets="CopySharedApiToPublish">
+		<ZipDirectory SourceDirectory="$(PublishDir)" DestinationFile="$(OutputPath)../$(AssemblyName).zip" Overwrite="true" />
 	</Target>
 </Project>
