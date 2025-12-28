@@ -39,72 +39,132 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: "10.0.x"
           cache: true
-          cache-dependency-path: '**/*.csproj'
+          cache-dependency-path: "**/*.csproj"
 
       - name: Restore and Publish
         run: |
-          # Find the main project (the one with CreateZip target or ProjectReference)
-          if [ -f *.sln ]; then
-            PROJECT=$(ls *.sln | head -1)
-          else
-            # Find csproj with CreateZip target (main project)
-            PROJECT=$(grep -l "CreateZip" $(find . -name "*.csproj") 2>/dev/null | head -1)
+          # Find all csproj files with CreateZip target (these produce release artifacts)
+          PROJECTS=$(grep -l "CreateZip" $(find . -name "*.csproj") 2>/dev/null || true)
 
-            # Fallback: find csproj with ProjectReference (references other projects)
-            if [ -z "$PROJECT" ]; then
-              PROJECT=$(grep -l "ProjectReference" $(find . -name "*.csproj") 2>/dev/null | head -1)
-            fi
-
-            # Final fallback: first csproj
-            if [ -z "$PROJECT" ]; then
-              PROJECT=$(find . -name "*.csproj" | head -1)
-            fi
-          fi
-
-          if [ -z "$PROJECT" ]; then
-            echo "::error::No .sln or .csproj found"
+          if [ -z "$PROJECTS" ]; then
+            echo "::error::No projects with CreateZip target found"
             exit 1
           fi
 
-          echo "Building: $PROJECT"
-          dotnet restore "$PROJECT"
-          dotnet publish "$PROJECT" -c Release
+          echo "Found projects to build:"
+          echo "$PROJECTS"
 
-      - name: Find release zip
+          # Build each project (dependencies like shared API will be built automatically)
+          for PROJECT in $PROJECTS; do
+            echo "Building: $PROJECT"
+            dotnet restore "$PROJECT"
+            dotnet publish "$PROJECT" -c Release
+          done
+
+      - name: Find and prepare release zips
         id: zip
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          # Find all zip files created by build
+          ZIP_FILES=$(find . -name "*.zip" -type f)
+          ZIP_COUNT=$(echo "$ZIP_FILES" | wc -l | tr -d ' ')
+
+          if [ -z "$ZIP_FILES" ] || [ "$ZIP_COUNT" -eq 0 ]; then
+            echo "::error::No .zip files found after build"
+            exit 1
+          fi
+
+          echo "Found $ZIP_COUNT zip file(s)"
+
+          # Prepare output directory
+          mkdir -p release-artifacts
+
+          # If only one zip, it's the main plugin - no identification needed
+          if [ "$ZIP_COUNT" -eq 1 ]; then
+            ZIP_FILE=$(echo "$ZIP_FILES" | head -1)
+            BASENAME=$(basename "$ZIP_FILE" .zip)
+            NEW_NAME="${BASENAME}-v${VERSION}.zip"
+            mv "$ZIP_FILE" "release-artifacts/$NEW_NAME"
+            echo "Single plugin: $NEW_NAME"
+          else
+            # Multiple zips - must identify main plugin via ConfigureSharedInterface
+            MAIN_CS=$(grep -rl "ConfigureSharedInterface" --include="*.cs" . 2>/dev/null | head -1)
+
+            if [ -z "$MAIN_CS" ]; then
+              echo "::error::Multiple plugins found but cannot identify main plugin (no ConfigureSharedInterface found)"
+              exit 1
+            fi
+
+            MAIN_DIR=$(dirname "$MAIN_CS")
+            echo "Main plugin identified in: $MAIN_DIR"
+
+            MAIN_FOUND=false
+
+            for ZIP_FILE in $ZIP_FILES; do
+              BASENAME=$(basename "$ZIP_FILE" .zip)
+              NEW_NAME="${BASENAME}-v${VERSION}.zip"
+
+              # Check if this zip is from the main plugin directory
+              ZIP_DIR=$(dirname "$ZIP_FILE")
+              if [[ "$ZIP_DIR" == *"src-plugin"* ]] || [[ "$ZIP_DIR" == "$MAIN_DIR"* ]] || [[ "$MAIN_DIR" == *"$BASENAME"* ]]; then
+                echo "Main plugin: $NEW_NAME"
+                MAIN_FOUND=true
+              else
+                echo "Perk plugin: $NEW_NAME"
+              fi
+
+              mv "$ZIP_FILE" "release-artifacts/$NEW_NAME"
+            done
+
+            if [ "$MAIN_FOUND" = false ]; then
+              echo "::error::Could not match main plugin to any zip file"
+              exit 1
+            fi
+          fi
+
+          echo "all_zips=$(ls release-artifacts/*.zip | tr '\n' ' ')" >> $GITHUB_OUTPUT
+
+      - name: Determine release tag
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           REPO_NAME="${{ github.event.repository.name }}"
 
-          # Find the zip created by dotnet publish (csproj CreateZip target)
-          ZIP_FILE=$(find . -name "*.zip" -type f | head -1)
+          # Find next available tag/build number
+          BASE_TAG="v${VERSION}"
+          TAG="$BASE_TAG"
+          TITLE="${REPO_NAME} | ${BASE_TAG}"
+          BUILD_NUM=1
 
-          if [ -z "$ZIP_FILE" ] || [ ! -f "$ZIP_FILE" ]; then
-            echo "::error::No .zip file found after build"
-            exit 1
-          fi
+          while gh release view "$TAG" &>/dev/null; do
+            BUILD_NUM=$((BUILD_NUM + 1))
+            TAG="${BASE_TAG}-${BUILD_NUM}"
+            TITLE="${REPO_NAME} | ${BASE_TAG}#${BUILD_NUM}"
+            echo "Tag $BASE_TAG exists, trying: $TAG"
+          done
 
-          # Rename to standard format
-          ZIP_NAME="${REPO_NAME}-v${VERSION}.zip"
-          mv "$ZIP_FILE" "$ZIP_NAME"
-
-          echo "zip_name=$ZIP_NAME" >> $GITHUB_OUTPUT
-          echo "Found and renamed to: $ZIP_NAME"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "Determined tag: $TAG (Title: $TITLE)"
 
       - name: Extract changelog
         id: changelog
         run: |
           VERSION="${{ steps.version.outputs.version }}"
+          NEW_TAG="${{ steps.tag.outputs.tag }}"
           CHANGELOG=""
 
-          # Extract changelog section if file exists
+          # Extract changelog section if file exists (matches both [v1.0.1] and [1.0.1])
           if [ -f "CHANGELOG.md" ]; then
             CHANGELOG=$(awk -v ver="$VERSION" '
               /^## \[/ {
                 if (found) exit
-                if ($0 ~ "\\[" ver "\\]") { found=1; next }
+                if ($0 ~ "\\[v?" ver "\\]") { found=1; next }
               }
               found { print }
             ' CHANGELOG.md)
@@ -114,7 +174,7 @@ jobs:
             CHANGELOG="Release v$VERSION"
           fi
 
-          # Get previous tag for compare URL
+          # Get the most recent existing tag
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
           # Build release body
@@ -123,19 +183,18 @@ jobs:
             echo "$CHANGELOG"
             echo ""
             if [ -n "$PREV_TAG" ]; then
-              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...v${VERSION}"
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${NEW_TAG}"
             fi
             echo "EOF"
           } >> $GITHUB_OUTPUT
 
-      - name: Create or Update GitHub Release
+      - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           VERSION="${{ steps.version.outputs.version }}"
-          REPO_NAME="${{ github.event.repository.name }}"
-          ZIP_NAME="${{ steps.zip.outputs.zip_name }}"
-          TAG="v${VERSION}"
+          TAG="${{ steps.tag.outputs.tag }}"
+          TITLE="${{ steps.tag.outputs.title }}"
 
           # Auto-detect pre-release (contains -)
           PRERELEASE_FLAG=""
@@ -144,26 +203,12 @@ jobs:
             echo "Detected pre-release version"
           fi
 
-          # Check if release already exists
-          if gh release view "$TAG" &>/dev/null; then
-            echo "Release $TAG exists - updating..."
+          echo "Creating release: $TAG (Title: $TITLE)"
 
-            gh release edit "$TAG" \
-              --title "${REPO_NAME} | ${TAG}" \
-              --notes "${{ steps.changelog.outputs.body }}" \
-              $PRERELEASE_FLAG
+          gh release create "$TAG" \
+            --title "$TITLE" \
+            --notes "${{ steps.changelog.outputs.body }}" \
+            $PRERELEASE_FLAG \
+            release-artifacts/*.zip
 
-            gh release upload "$TAG" "${ZIP_NAME}" --clobber
-
-            echo "Release $TAG updated successfully!"
-          else
-            echo "Creating new release $TAG..."
-
-            gh release create "$TAG" \
-              --title "${REPO_NAME} | ${TAG}" \
-              --notes "${{ steps.changelog.outputs.body }}" \
-              $PRERELEASE_FLAG \
-              "${ZIP_NAME}"
-
-            echo "Release $TAG created successfully!"
-          fi
+          echo "Release $TAG created successfully!"
