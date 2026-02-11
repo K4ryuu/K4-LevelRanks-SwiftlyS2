@@ -164,7 +164,7 @@ public sealed partial class Plugin
 			return;
 
 		var localizer = Core.Translation.GetPlayerLocalizer(player);
-		var formattedTime = PlaytimeFormatter.Format(data!.Playtime);
+		var formattedTime = PlaytimeFormatter.Format(data!.Playtime, localizer);
 
 		player.SendChat($"{localizer["k4.general.prefix"]} {localizer["k4.chat.mytime", formattedTime]}");
 	}

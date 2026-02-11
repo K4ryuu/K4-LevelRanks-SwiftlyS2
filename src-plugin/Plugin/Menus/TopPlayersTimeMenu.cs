@@ -41,7 +41,7 @@ public sealed partial class MenuManager
 				{
 					var p = topPlayers[i];
 					var position = i + 1;
-					var formattedTime = PlaytimeFormatter.Format(p.Playtime);
+					var formattedTime = PlaytimeFormatter.Format(p.Playtime, localizer);
 
 					// Format: #1 <name> - <gold>XdXhXm</gold>
 					var formattedEntry = $"#{position} {p.PlayerName} - <font color='#FFD700'>{formattedTime}</font>";

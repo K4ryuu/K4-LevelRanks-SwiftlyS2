@@ -120,6 +120,9 @@
   "k4.format.position": "#{0} / {1}",
   "k4.format.max_rank": "* Max rank achieved!",
   "k4.format.top_entry": "#{0} {1} - {2} pts",
+  "k4.format.day": "d",
+  "k4.format.hour": "h",
+  "k4.format.minute": "m",
 
   // ========== MENU SYSTEM ==========
   // Main menu
