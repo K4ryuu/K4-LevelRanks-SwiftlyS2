@@ -96,8 +96,8 @@ public sealed partial class Plugin
 
 	private void RegisterPlayerEvents()
 	{
-		Core.GameEvent.HookPost<EventPlayerActivate>(OnPlayerActivate);
-		Core.GameEvent.HookPost<EventPlayerDisconnect>(OnPlayerDisconnect);
+		Core.Event.OnClientPutInServer += OnClientPutInServer;
+		Core.Event.OnClientDisconnected += OnClientDisconnected;
 	}
 
 	private void RegisterStatEvents()
@@ -139,31 +139,28 @@ public sealed partial class Plugin
 
 	/* ==================== Player Events ==================== */
 
-	private HookResult OnPlayerActivate(EventPlayerActivate @event)
+	private void OnClientPutInServer(IOnClientPutInServerEvent @event)
 	{
-		var player = Core.PlayerManager.GetPlayer(@event.UserId);
+		var player = Core.PlayerManager.GetPlayer(@event.PlayerId);
 
 		if (player == null || !player.IsValid || player.IsFakeClient)
-			return HookResult.Continue;
+			return;
 
 		Task.Run(() => PlayerData.LoadPlayerDataAsync(player));
-		return HookResult.Continue;
 	}
 
-	private HookResult OnPlayerDisconnect(EventPlayerDisconnect @event)
+	private void OnClientDisconnected(IOnClientDisconnectedEvent @event)
 	{
-		var player = Core.PlayerManager.GetPlayer(@event.UserId);
+		var player = Core.PlayerManager.GetPlayer(@event.PlayerId);
 
 		if (player == null || !player.IsValid || player.IsFakeClient)
-			return HookResult.Continue;
+			return;
 
 		Task.Run(async () =>
 		{
 			await PlayerData.SavePlayerDataAsync(player);
 			PlayerData.RemovePlayer(player.SteamID);
 		});
-
-		return HookResult.Continue;
 	}
 
 	/* ==================== Round Events ==================== */
