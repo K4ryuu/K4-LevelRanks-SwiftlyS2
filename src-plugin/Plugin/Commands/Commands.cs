@@ -24,6 +24,10 @@ public sealed partial class Plugin
 		RegisterCommandWithAliases(Commands.CurrentValue.ResetMyRank, OnResetMyRankCommand);
 		RegisterCommandWithAliases(Commands.CurrentValue.ToggleMessages, OnToggleMessagesCommand);
 
+		// Time-based commands
+		RegisterCommandWithAliases(Commands.CurrentValue.MyTime, OnMyTimeCommand);
+		RegisterCommandWithAliases(Commands.CurrentValue.TopTime, OnTopTimeCommand);
+
 		// Admin commands
 		RegisterCommandWithAliases(Commands.CurrentValue.SetPoints, OnSetPointsCommand);
 		RegisterCommandWithAliases(Commands.CurrentValue.GivePoints, OnGivePointsCommand);
@@ -147,6 +151,36 @@ public sealed partial class Plugin
 			: "k4.chat.setting.messages_off";
 
 		player.SendChat($"{localizer["k4.general.prefix"]} {localizer[messageKey]}");
+	}
+
+	private void OnMyTimeCommand(ICommandContext ctx)
+	{
+		var player = ctx.Sender;
+		if (player == null || !player.IsValid)
+			return;
+
+		var data = PlayerData.GetPlayerData(player);
+		if (!ValidatePlayerData(player, data))
+			return;
+
+		var localizer = Core.Translation.GetPlayerLocalizer(player);
+		var formattedTime = PlaytimeFormatter.Format(data!.Playtime);
+
+		player.SendChat($"{localizer["k4.general.prefix"]} {localizer["k4.chat.mytime", formattedTime]}");
+	}
+
+	private void OnTopTimeCommand(ICommandContext ctx)
+	{
+		var player = ctx.Sender;
+		if (player == null || !player.IsValid)
+			return;
+
+		var localizer = Core.Translation.GetPlayerLocalizer(player);
+		if (_menuManager != null)
+		{
+			var menu = MenuManager.TopPlayersTimeMenu.Build(_menuManager, player, localizer);
+			Core.MenusAPI.OpenMenuForPlayer(player, menu);
+		}
 	}
 
 	/* ==================== Admin Commands ==================== */

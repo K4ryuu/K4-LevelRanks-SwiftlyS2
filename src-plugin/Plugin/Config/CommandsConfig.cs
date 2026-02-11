@@ -42,6 +42,20 @@ public sealed class CommandsConfig
 		Permission = ""
 	};
 
+	public CommandConfig MyTime { get; set; } = new()
+	{
+		Command = "mytime",
+		Aliases = ["playtime", "servertime"],
+		Permission = ""
+	};
+
+	public CommandConfig TopTime { get; set; } = new()
+	{
+		Command = "ttop",
+		Aliases = ["timetop", "toptime"],
+		Permission = ""
+	};
+
 	/* ==================== Admin Commands ==================== */
 
 	public CommandConfig SetPoints { get; set; } = new()

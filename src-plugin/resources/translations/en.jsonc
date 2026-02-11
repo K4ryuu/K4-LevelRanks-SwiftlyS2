@@ -89,11 +89,15 @@
   "k4.chat.setting.rankchanges_on": "[lime]Rank change alerts enabled.",
   "k4.chat.setting.rankchanges_off": "[gold]Rank change alerts disabled.",
 
+  // Playtime
+  "k4.chat.mytime": "You have spent [gold]{0}[default] on this server.",
+
   // ========== ERROR MESSAGES ==========
   "k4.error.data_not_loaded": "[lightred]Your data is still loading. Please wait.",
   "k4.error.target_not_loaded": "[lightred]Target's data is not loaded.",
   "k4.error.no_target": "[lightred]No matching player found.",
   "k4.error.invalid_points": "[lightred]Invalid point value.",
+  "k4.error.no_permission": "[lightred]You do not have permission to use this command.",
 
   // ========== ADMIN MESSAGES ==========
   "k4.admin.points_set": "[lime]Set [gold]{0}[lime]'s points to [gold]{1}[lime].",
@@ -127,6 +131,7 @@
   "k4.menu.weaponstats": "Weapon Stats",
   "k4.menu.hitstats": "Hit Stats",
   "k4.menu.top": "Top Players",
+  "k4.menu.ttop": "Top Playtime",
   "k4.menu.allranks": "All Ranks",
   "k4.menu.settings": "Settings",
 

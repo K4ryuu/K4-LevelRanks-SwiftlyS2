@@ -161,8 +161,6 @@ public sealed partial class Plugin
 				using var connection = Core.Database.GetConnection(_connectionName);
 				connection.Open();
 
-				// Use Dommel's SelectAsync with ordering - get all and take top N
-				// Note: For large datasets, consider using raw SQL with LIMIT for better performance
 				var allPlayers = await connection.GetAllAsync<PlayerData>();
 				return allPlayers
 					.OrderByDescending(p => p.Value)
@@ -172,6 +170,29 @@ public sealed partial class Plugin
 			catch (Exception ex)
 			{
 				Core.Logger.LogError(ex, "Failed to get top players");
+				return [];
+			}
+		}
+
+		public async Task<List<PlayerData>> GetTopPlayersByTimeAsync(int count = 10)
+		{
+			if (!IsEnabled)
+				return [];
+
+			try
+			{
+				using var connection = Core.Database.GetConnection(_connectionName);
+				connection.Open();
+
+				var allPlayers = await connection.GetAllAsync<PlayerData>();
+				return allPlayers
+					.OrderByDescending(p => p.Playtime)
+					.Take(count)
+					.ToList();
+			}
+			catch (Exception ex)
+			{
+				Core.Logger.LogError(ex, "Failed to get top players by time");
 				return [];
 			}
 		}
