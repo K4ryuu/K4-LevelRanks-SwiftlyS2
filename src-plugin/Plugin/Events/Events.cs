@@ -156,10 +156,12 @@ public sealed partial class Plugin
 		if (player == null || !player.IsValid || player.IsFakeClient)
 			return;
 
+		var steamId = player.SteamID; // Capture before Task.Run to avoid ObjectDisposedException
+
 		Task.Run(async () =>
 		{
-			await PlayerData.SavePlayerDataAsync(player);
-			PlayerData.RemovePlayer(player.SteamID);
+			await PlayerData.SavePlayerDataAsync(steamId);
+			PlayerData.RemovePlayer(steamId);
 		});
 	}
 

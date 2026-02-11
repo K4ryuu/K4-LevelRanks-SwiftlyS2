@@ -118,9 +118,9 @@ public sealed partial class Plugin
 
 		/* ==================== Save ==================== */
 
-		public async Task SavePlayerDataAsync(IPlayer player)
+		public async Task SavePlayerDataAsync(ulong steamId)
 		{
-			if (!_playerData.TryGetValue(player.SteamID, out var data) || !data.IsLoaded)
+			if (!_playerData.TryGetValue(steamId, out var data) || !data.IsLoaded)
 				return;
 
 			data.UpdatePlaytime();
