@@ -96,7 +96,7 @@ public sealed partial class Plugin
 
 	private void RegisterPlayerEvents()
 	{
-		Core.Event.OnClientPutInServer += OnClientPutInServer;
+		Core.GameEvent.HookPost<EventPlayerActivate>(OnPlayerActivate);
 		Core.Event.OnClientDisconnected += OnClientDisconnected;
 	}
 
@@ -139,14 +139,15 @@ public sealed partial class Plugin
 
 	/* ==================== Player Events ==================== */
 
-	private void OnClientPutInServer(IOnClientPutInServerEvent @event)
+	private HookResult OnPlayerActivate(EventPlayerActivate @event)
 	{
-		var player = Core.PlayerManager.GetPlayer(@event.PlayerId);
+		var player = Core.PlayerManager.GetPlayer(@event.UserId);
 
 		if (player == null || !player.IsValid || player.IsFakeClient)
-			return;
+			return HookResult.Continue;
 
 		Task.Run(() => PlayerData.LoadPlayerDataAsync(player));
+		return HookResult.Continue;
 	}
 
 	private void OnClientDisconnected(IOnClientDisconnectedEvent @event)
