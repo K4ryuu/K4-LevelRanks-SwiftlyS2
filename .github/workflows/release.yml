@@ -167,7 +167,7 @@ jobs:
                 if ($0 ~ "\\[v?" ver "\\]") { found=1; next }
               }
               found { print }
-            ' CHANGELOG.md > /tmp/changelog_section.txt
+            ' CHANGELOG.md > /tmp/release_notes.txt
 
             CHANGELOG_EXISTS=true
           else
@@ -177,20 +177,21 @@ jobs:
           # Get the most recent existing tag
           PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
 
-          # Build release body using heredoc
-          {
-            echo "body<<EOF"
-            if [ "$CHANGELOG_EXISTS" = true ] && [ -s /tmp/changelog_section.txt ]; then
-              cat /tmp/changelog_section.txt
-            else
-              echo "Release v$VERSION"
-            fi
-            echo ""
+          # Build complete release notes file
+          if [ "$CHANGELOG_EXISTS" = true ] && [ -s /tmp/release_notes.txt ]; then
+            # Append full changelog link if previous tag exists
             if [ -n "$PREV_TAG" ]; then
-              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${NEW_TAG}"
+              echo "" >> /tmp/release_notes.txt
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${NEW_TAG}" >> /tmp/release_notes.txt
             fi
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          else
+            # No changelog found, create simple release notes
+            echo "Release v$VERSION" > /tmp/release_notes.txt
+            if [ -n "$PREV_TAG" ]; then
+              echo "" >> /tmp/release_notes.txt
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREV_TAG}...${NEW_TAG}" >> /tmp/release_notes.txt
+            fi
+          fi
 
       - name: Create GitHub Release
         env:
@@ -211,7 +212,7 @@ jobs:
 
           gh release create "$TAG" \
             --title "$TITLE" \
-            --notes "${{ steps.changelog.outputs.body }}" \
+            --notes-file /tmp/release_notes.txt \
             $PRERELEASE_FLAG \
             release-artifacts/*.zip
 
