@@ -33,16 +33,25 @@ public sealed partial class Plugin
 
 		/* ==================== Load ==================== */
 
-		public async Task LoadPlayerDataAsync(IPlayer player)
+		public async Task LoadPlayerDataAsync(IPlayer? player)
 		{
-			var steamId64 = player.SteamID;
+            if (player == null || !player.IsValid)
+                return;
+
+            var steamId64 = player.SteamID;
 			var visibleSteamId = SteamIdParser.ToSteamId(steamId64);
 
 			try
 			{
 				var data = await LoadOrCreatePlayerData(player, steamId64, visibleSteamId);
 
-				await LoadPlayerSettings(data, visibleSteamId);
+				if (data == null)
+				{
+					Core.Logger.LogWarning("Failed to load or create player data for {Steam}. Player disconnected before data could be loaded", visibleSteamId);
+                    return;
+				}
+
+					await LoadPlayerSettings(data, visibleSteamId);
 				var weaponStatsCount = await LoadWeaponStats(data, visibleSteamId);
 				await LoadHitData(data, visibleSteamId);
 
@@ -63,9 +72,12 @@ public sealed partial class Plugin
 			}
 		}
 
-		private async Task<PlayerData> LoadOrCreatePlayerData(IPlayer player, ulong steamId64, string visibleSteamId)
+		private async Task<PlayerData?> LoadOrCreatePlayerData(IPlayer? player, ulong steamId64, string visibleSteamId)
 		{
-			var data = await _plugin.Database.LoadPlayerAsync(visibleSteamId);
+            if (player == null || !player.IsValid)
+                return null;
+
+            var data = await _plugin.Database.LoadPlayerAsync(visibleSteamId);
 
 			if (data == null)
 			{
@@ -74,7 +86,7 @@ public sealed partial class Plugin
 				{
 					Steam = visibleSteamId,
 					SteamId64 = steamId64,
-					Name = player.Controller?.PlayerName ?? "Unknown",
+					Name = player?.Controller?.PlayerName ?? "Unknown",
 					Value = startPoints,
 					Rank = _plugin.Ranks.GetRankId(startPoints),
 					IsLoaded = true,
@@ -83,7 +95,7 @@ public sealed partial class Plugin
 			}
 
 			data.SteamId64 = steamId64;
-			data.Name = player.Controller?.PlayerName ?? data.Name;
+			data.Name = player?.Controller?.PlayerName ?? data.Name;
 			data.Rank = _plugin.Ranks.GetRankId(data.Points);
 			data.IsLoaded = true;
 
