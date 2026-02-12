@@ -26,13 +26,25 @@
 
 ### Support My Work
 
-I create free, open-source projects for the community. While not required, donations help me dedicate more time to development and support. Thank you!
+I create free, open-source Counter-Strike 2 plugins for the community. If you'd like to support my work, consider becoming a sponsor!
+
+#### 💖 GitHub Sponsors
+
+Support this project through [GitHub Sponsors](https://github.com/sponsors/K4ryuu) with flexible options:
+
+- **One-time** or **monthly** contributions
+- **Custom amount** - choose what works for you
+- **Multiple tiers available** - from basic benefits to priority support or private project access
+
+Every contribution helps me dedicate more time to development, support, and creating new features. Thank you! 🙏
 
 <p align="center">
-  <a href="https://paypal.me/k4ryuu"><img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" /></a>
-  <a href="https://revolut.me/k4ryuu"><img src="https://img.shields.io/badge/Revolut-0075EB?style=for-the-badge&logo=revolut&logoColor=white" /></a>
+  <a href="https://github.com/sponsors/K4ryuu">
+    <img src="https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA" alt="GitHub Sponsors" />
+  </a>
 </p>
 
+⭐ **Or support me for free by starring this repository!**
 ---
 
 ## Features
