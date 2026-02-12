@@ -66,5 +66,4 @@ obj/
 # Shared API exports
 src-plugin/resources/exports/K4-LevelRanksSharedApi.dll
 src-plugin/K4-LevelRanks.csproj.user
-src-plugin/Properties/PublishProfiles/FolderProfile.pubxml
-src-plugin/Properties/PublishProfiles/FolderProfile.pubxml.user
+src-plugin/Properties/PublishProfiles/*
