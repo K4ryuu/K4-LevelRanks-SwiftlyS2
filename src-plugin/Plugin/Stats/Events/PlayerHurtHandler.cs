@@ -24,10 +24,13 @@ public sealed class PlayerHurtHandler(PluginConfig config, ModuleConfig modules,
 		if (!canProcess())
 			return HookResult.Continue;
 
-		var attacker = @event.Accessor.GetPlayer("attacker");
+		var attacker = @event.Accessor?.GetPlayer("attacker");
 		var victim = @event.UserIdPlayer;
 
-		// Basic validation
+		// Basic validation - check null first before accessing properties
+		if (victim == null || attacker == null)
+			return HookResult.Continue;
+
 		if (!attacker.IsValid || !victim.IsValid)
 			return HookResult.Continue;
 

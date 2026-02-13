@@ -24,37 +24,37 @@ public sealed class PlayerDeathHandler(PluginConfig config, PointsConfig points,
 		if (!canProcess())
 			return HookResult.Continue;
 
-		var attacker = @event.Accessor.GetPlayer("attacker");
+		var attacker = @event.Accessor?.GetPlayer("attacker");
 		var victim = @event.UserIdPlayer;
-		var assister = @event.Accessor.GetPlayer("assister");
+		var assister = @event.Accessor?.GetPlayer("assister");
 
-		var attackerData = IsValidPlayer(attacker) ? getPlayerData(attacker) : null;
-		var victimData = IsValidPlayer(victim) ? getPlayerData(victim) : null;
-		var assisterData = IsValidPlayer(assister) ? getPlayerData(assister) : null;
+		var attackerData = IsValidPlayer(attacker) ? getPlayerData(attacker!) : null;
+		var victimData = IsValidPlayer(victim) ? getPlayerData(victim!) : null;
+		var assisterData = IsValidPlayer(assister) ? getPlayerData(assister!) : null;
 
 		var weapon = @event.Weapon ?? "";
 		var headshot = @event.Headshot;
 
 		// Determine kill type
-		var isSuicide = !attacker.IsValid || attacker.SteamID == victim.SteamID;
+		var isSuicide = attacker == null || !attacker.IsValid || (victim != null && attacker.SteamID == victim.SteamID);
 		var isTeamKill = !isSuicide && !config.Rank.FFAMode &&
-			attacker.IsValid && victim.IsValid &&
+			attacker?.IsValid == true && victim?.IsValid == true &&
 			attacker.Controller?.Team == victim.Controller?.Team;
-		var isBotKill = victim.IsFakeClient;
+		var isBotKill = victim?.IsFakeClient ?? false;
 		var isValidKill = !isSuicide && !isTeamKill && (!isBotKill || config.Rank.PointsForBots);
 
 		// =========================================
 		// =           VICTIM PROCESSING
 		// =========================================
 
-		if (victimData?.IsLoaded == true)
+		if (victimData?.IsLoaded == true && victim != null)
 		{
 			if (isSuicide)
 			{
 				// Suicide
 				ProcessPoints(victim, points.Suicide, "k4.reason.suicide");
 			}
-			else if (!isTeamKill && attacker.IsValid)
+			else if (!isTeamKill && attacker?.IsValid == true)
 			{
 				// Normal death
 				var multiplier = CalculateDynamicMultiplier(victimData.Points, attackerData?.Points ?? 0);
@@ -73,9 +73,9 @@ public sealed class PlayerDeathHandler(PluginConfig config, PointsConfig points,
 		// =           ATTACKER PROCESSING
 		// =========================================
 
-		if (attackerData?.IsLoaded == true && attacker.IsValid && !isSuicide)
+		if (attackerData?.IsLoaded == true && attacker?.IsValid == true && !isSuicide)
 		{
-			var victimName = victim.Controller?.PlayerName;
+			var victimName = victim?.Controller?.PlayerName;
 
 			if (isTeamKill)
 			{
@@ -113,9 +113,9 @@ public sealed class PlayerDeathHandler(PluginConfig config, PointsConfig points,
 		// =           ASSISTER PROCESSING
 		// =========================================
 
-		if (assisterData?.IsLoaded == true && assister.IsValid)
+		if (assisterData?.IsLoaded == true && assister?.IsValid == true)
 		{
-			var isTeamAssist = !config.Rank.FFAMode && victim.IsValid &&
+			var isTeamAssist = !config.Rank.FFAMode && victim?.IsValid == true &&
 				assister.Controller?.Team == victim.Controller?.Team;
 
 			if (@event.AssistedFlash)
