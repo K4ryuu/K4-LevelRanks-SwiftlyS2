@@ -1,0 +1,239 @@
+{
+  // K4-LevelRanks 简体中文翻译
+  // 命名规范: k4.<类别>.<子类别>.<名称>
+
+  // ========== 通用 ==========
+  "k4.general.prefix": "[silver][ [lime]K4-等级排名 [silver]]",
+
+  // ========== 积分原因 ==========
+  // 战斗
+  "k4.reason.kill": "击杀",
+  "k4.reason.death": "死亡",
+  "k4.reason.headshot": "爆头",
+  "k4.reason.suicide": "自杀",
+  "k4.reason.teamkill": "击杀队友",
+  "k4.reason.assist": "助攻",
+  "k4.reason.assist_flash": "闪光助攻",
+  "k4.reason.team_assist": "队友助攻",
+  "k4.reason.team_assist_flash": "队友闪光助攻",
+
+  // 特殊击杀
+  "k4.reason.noscope": "不开镜击杀",
+  "k4.reason.thrusmoke": "穿烟击杀",
+  "k4.reason.blind": "闪光击杀",
+  "k4.reason.penetrated": "穿墙击杀",
+  "k4.reason.longdistance": "远距离击杀",
+
+  // 武器击杀
+  "k4.reason.knife": "刀杀",
+  "k4.reason.taser": "电击枪击杀",
+  "k4.reason.grenade": "手雷击杀",
+  "k4.reason.inferno": "燃烧弹击杀",
+  "k4.reason.impact": "投掷物砸杀",
+
+  // 回合事件
+  "k4.reason.roundwin": "回合胜利",
+  "k4.reason.roundlose": "回合失败",
+  "k4.reason.mvp": "最有价值玩家",
+
+  // 炸弹事件
+  "k4.reason.bombplant": "安放炸弹",
+  "k4.reason.bombdefuse": "拆除炸弹",
+  "k4.reason.bombdefuse_others": "炸弹被拆除",
+  "k4.reason.bombexploded": "炸弹爆炸",
+  "k4.reason.bombpickup": "拾取炸弹",
+  "k4.reason.bombdrop": "丢弃炸弹",
+
+  // 人质事件
+  "k4.reason.hostagerescue": "解救人质",
+  "k4.reason.hostagerescue_all": "解救全部人质",
+  "k4.reason.hostagehurt": "伤害人质",
+  "k4.reason.hostagekill": "击杀人质",
+
+  // 连杀
+  "k4.reason.doublekill": "双杀",
+  "k4.reason.triplekill": "三杀",
+  "k4.reason.domination": "支配",
+  "k4.reason.rampage": "暴走",
+  "k4.reason.megakill": "超级杀戮",
+  "k4.reason.ownage": "完全压制",
+  "k4.reason.ultrakill": "极限杀戮",
+  "k4.reason.killingspree": "杀戮狂潮",
+  "k4.reason.monsterkill": "怪物杀戮",
+  "k4.reason.unstoppable": "势不可挡",
+  "k4.reason.godlike": "神一般的存在",
+
+  // 其他
+  "k4.reason.playtime": "游戏时长",
+  "k4.reason.admin": "管理员",
+
+  // ========== 聊天消息 ==========
+  // 积分
+  "k4.chat.points.gained": "[lime]+{0} 积分 [default]({1})",
+  "k4.chat.points.lost": "[lightred]-{0} 积分 [default]({1})",
+
+  // 回合总结
+  "k4.chat.summary.gained": "[lime]回合总结: +{0} 积分",
+  "k4.chat.summary.lost": "[lightred]回合总结: -{0} 积分",
+
+  // 段位变更
+  "k4.chat.rank.promoted": "[lime]★ 晋升至 {0}{1}！",
+  "k4.chat.rank.demoted": "[lightred]★ 降级至 {0}{1}！",
+  "k4.chat.rank.reset": "[lime]你的段位已被重置。",
+
+  // 设置开关
+  "k4.chat.setting.messages_on": "[lime]积分消息已开启。",
+  "k4.chat.setting.messages_off": "[gold]积分消息已关闭。",
+  "k4.chat.setting.summary_on": "[lime]回合总结已开启。",
+  "k4.chat.setting.summary_off": "[gold]回合总结已关闭。",
+  "k4.chat.setting.rankchanges_on": "[lime]段位变更提醒已开启。",
+  "k4.chat.setting.rankchanges_off": "[gold]段位变更提醒已关闭。",
+
+  // 游戏时长
+  "k4.chat.mytime": "你在此服务器已游玩 [gold]{0}[default]。",
+
+  // 排行榜位置
+  "k4.chat.top_position": "你在 [gold]{1} 名玩家[default]中排名第 [gold]#{0}[default]。",
+  "k4.chat.ttop_position": "你在 [gold]{1} 名玩家[default]中游戏时长排名第 [gold]#{0}[default]。",
+
+  // ========== 错误消息 ==========
+  "k4.error.data_not_loaded": "[lightred]你的数据仍在加载中，请稍候。",
+  "k4.error.target_not_loaded": "[lightred]目标玩家的数据尚未加载。",
+  "k4.error.no_target": "[lightred]未找到匹配的玩家。",
+  "k4.error.invalid_points": "[lightred]无效的积分值。",
+  "k4.error.no_permission": "[lightred]你没有权限使用此命令。",
+
+  // ========== 管理员消息 ==========
+  "k4.admin.points_set": "[lime]已将 [gold]{0}[lime] 的积分设置为 [gold]{1}[lime]。",
+  "k4.admin.points_set_target": "[lime]你的积分已被设置为 [gold]{0}[lime]。",
+  "k4.admin.points_given": "[lime]已给予 [gold]{1}[lime] [gold]{0} 积分[lime]。",
+  "k4.admin.points_removed": "[lime]已从 [gold]{1}[lime] 移除 [gold]{0} 积分[lime]。",
+
+  // ========== 用法 ==========
+  "k4.usage.setpoints": "[gray]用法: !setpoints <玩家> <积分>",
+  "k4.usage.givepoints": "[gray]用法: !givepoints <玩家> <积分>",
+  "k4.usage.removepoints": "[gray]用法: !removepoints <玩家> <积分>",
+
+  // ========== 格式化字符串 ==========
+  "k4.format.line": "{0}: <font color='#FFD700'>{1}</font>",
+  "k4.format.percent": "{0}%",
+  "k4.format.hours": "{0}小时",
+  "k4.format.points": "{0} 分",
+  "k4.format.kills": "{0} 杀",
+  "k4.format.value_percent": "{0} ({1}%)",
+  "k4.format.position": "#{0} / {1}",
+  "k4.format.max_rank": "* 已达到最高段位！",
+  "k4.format.top_entry": "#{0} {1} - {2} 分",
+  "k4.format.day": "天",
+  "k4.format.hour": "时",
+  "k4.format.minute": "分",
+
+  // ========== 菜单系统 ==========
+  // 主菜单
+  "k4.menu.title": "K4-等级排名",
+
+  // 菜单项
+  "k4.menu.myrank": "我的段位",
+  "k4.menu.mystats": "我的数据",
+  "k4.menu.weaponstats": "武器数据",
+  "k4.menu.hitstats": "命中数据",
+  "k4.menu.top": "排行榜",
+  "k4.menu.ttop": "游戏时长排行",
+  "k4.menu.allranks": "所有段位",
+  "k4.menu.settings": "设置",
+
+  // 菜单分类
+  "k4.menu.category.ranks": "段位",
+  "k4.menu.category.stats": "数据统计",
+
+  // 数据子菜单
+  "k4.menu.stats.combat": "战斗数据",
+  "k4.menu.stats.rounds": "回合数据",
+  "k4.menu.stats.games": "比赛数据",
+  "k4.menu.stats.accuracy": "精准度数据",
+
+  // 设置菜单选项
+  "k4.menu.setting.messages": "积分消息",
+  "k4.menu.setting.summary": "回合总结",
+  "k4.menu.setting.rankchanges": "段位变更提醒",
+
+  // 菜单消息
+  "k4.menu.loading": "加载中...",
+  "k4.menu.top.empty": "暂无排名玩家。",
+  "k4.menu.weapon.nodata": "暂无武器数据记录。",
+
+  // ========== 通用标签 ==========
+  "k4.label.points": "积分",
+  "k4.label.kills": "击杀",
+  "k4.label.deaths": "死亡",
+  "k4.label.kdr": "K/D 比率",
+  "k4.label.headshots": "爆头",
+  "k4.label.assists": "助攻",
+  "k4.label.damage": "伤害",
+  "k4.label.shots": "射击次数",
+  "k4.label.hits": "命中次数",
+  "k4.label.accuracy": "精准度",
+  "k4.label.winrate": "胜率",
+  "k4.label.playtime": "游戏时长",
+  "k4.label.current_rank": "当前段位",
+  "k4.label.position": "排名",
+  "k4.label.next_rank": "下一段位",
+  "k4.label.points_needed": "所需积分",
+  "k4.label.max_rank": "最高段位",
+  "k4.label.rounds_played": "已玩回合",
+  "k4.label.rounds_won": "胜利回合",
+  "k4.label.rounds_lost": "失败回合",
+  "k4.label.games_played": "已玩比赛",
+  "k4.label.games_won": "胜利比赛",
+  "k4.label.games_lost": "失败比赛",
+  "k4.label.total": "总计",
+  "k4.label.head": "头部",
+  "k4.label.chest": "胸部",
+  "k4.label.stomach": "腹部",
+  "k4.label.arms": "手臂",
+  "k4.label.legs": "腿部",
+
+  // ========== 武器名称 ==========
+  "k4.weapon.ak47": "AK-47",
+  "k4.weapon.m4a1": "M4A1",
+  "k4.weapon.m4a1_silencer": "M4A1 消音版",
+  "k4.weapon.awp": "AWP",
+  "k4.weapon.deagle": "沙漠之鹰",
+  "k4.weapon.usp_silencer": "USP 消音版",
+  "k4.weapon.glock": "格洛克-18",
+  "k4.weapon.p250": "P250",
+  "k4.weapon.fiveseven": "FN57",
+  "k4.weapon.tec9": "Tec-9",
+  "k4.weapon.cz75a": "CZ75",
+  "k4.weapon.elite": "双持贝瑞塔",
+  "k4.weapon.revolver": "R8 左轮",
+  "k4.weapon.hkp2000": "P2000",
+  "k4.weapon.mp9": "MP9",
+  "k4.weapon.mac10": "MAC-10",
+  "k4.weapon.mp7": "MP7",
+  "k4.weapon.mp5sd": "MP5-SD",
+  "k4.weapon.ump45": "UMP-45",
+  "k4.weapon.p90": "P90",
+  "k4.weapon.bizon": "PP-野牛",
+  "k4.weapon.famas": "法玛斯",
+  "k4.weapon.galilar": "加利尔 AR",
+  "k4.weapon.aug": "AUG",
+  "k4.weapon.sg556": "SG 553",
+  "k4.weapon.ssg08": "SSG 08",
+  "k4.weapon.scar20": "SCAR-20",
+  "k4.weapon.g3sg1": "G3SG1",
+  "k4.weapon.nova": "新星",
+  "k4.weapon.xm1014": "XM1014",
+  "k4.weapon.mag7": "MAG-7",
+  "k4.weapon.sawedoff": "截短霰弹枪",
+  "k4.weapon.m249": "M249",
+  "k4.weapon.negev": "内格夫",
+  "k4.weapon.knife": "刀",
+  "k4.weapon.taser": "电击枪",
+  "k4.weapon.hegrenade": "高爆手雷",
+  "k4.weapon.molotov": "燃烧瓶",
+  "k4.weapon.incgrenade": "燃烧弹",
+  "k4.weapon.flashbang": "闪光弹",
+  "k4.weapon.smokegrenade": "烟雾弹",
+  "k4.weapon.decoy": "诱饵弹"
+}
