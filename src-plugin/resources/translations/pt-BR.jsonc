@@ -1,0 +1,239 @@
+{
+  // K4-LevelRanks Português (Brasil) Translations
+  // Naming convention: k4.<category>.<subcategory>.<name>
+
+  // ========== GENERAL ==========
+  "k4.general.prefix": "[silver][ [lime]K4-LevelRanks [silver]]",
+
+  // ========== POINT REASONS ==========
+  // Combat
+  "k4.reason.kill": "Abate",
+  "k4.reason.death": "Morte",
+  "k4.reason.headshot": "Headshot",
+  "k4.reason.suicide": "Suicídio",
+  "k4.reason.teamkill": "Abate em aliado",
+  "k4.reason.assist": "Assistência",
+  "k4.reason.assist_flash": "Assistência com flash",
+  "k4.reason.team_assist": "Assistência em aliado",
+  "k4.reason.team_assist_flash": "Assistência com flash em aliado",
+
+  // Special kills
+  "k4.reason.noscope": "No Scope",
+  "k4.reason.thrusmoke": "Através da fumaça",
+  "k4.reason.blind": "Abate cego",
+  "k4.reason.penetrated": "Wallbang",
+  "k4.reason.longdistance": "Longa distância",
+
+  // Weapon kills
+  "k4.reason.knife": "Abate com faca",
+  "k4.reason.taser": "Abate com Zeus",
+  "k4.reason.grenade": "Abate com granada",
+  "k4.reason.inferno": "Abate com Molotov/Incendiária",
+  "k4.reason.impact": "Abate por impacto",
+
+  // Round events
+  "k4.reason.roundwin": "Vitória no round",
+  "k4.reason.roundlose": "Derrota no round",
+  "k4.reason.mvp": "MVP",
+
+  // Bomb events
+  "k4.reason.bombplant": "C4 Plantada",
+  "k4.reason.bombdefuse": "C4 Desarmada",
+  "k4.reason.bombdefuse_others": "C4 Desarmada",
+  "k4.reason.bombexploded": "C4 Explodiu",
+  "k4.reason.bombpickup": "C4 Coletada",
+  "k4.reason.bombdrop": "C4 Dropada",
+
+  // Hostage events
+  "k4.reason.hostagerescue": "Refém resgatado",
+  "k4.reason.hostagerescue_all": "Todos os reféns resgatados",
+  "k4.reason.hostagehurt": "Refém ferido",
+  "k4.reason.hostagekill": "Refém morto",
+
+  // Killstreaks
+  "k4.reason.doublekill": "Abate duplo",
+  "k4.reason.triplekill": "Abate triplo",
+  "k4.reason.domination": "Dominação",
+  "k4.reason.rampage": "Rampage",
+  "k4.reason.megakill": "Mega Kill",
+  "k4.reason.ownage": "Ownage",
+  "k4.reason.ultrakill": "Ultra Kill",
+  "k4.reason.killingspree": "Sequência de abates",
+  "k4.reason.monsterkill": "Monster Kill",
+  "k4.reason.unstoppable": "Imparável",
+  "k4.reason.godlike": "GODLIKE",
+
+  // Other
+  "k4.reason.playtime": "Tempo de jogo",
+  "k4.reason.admin": "Admin",
+
+  // ========== CHAT MESSAGES ==========
+  // Points
+  "k4.chat.points.gained": "[lime]+{0} pontos [default]({1})",
+  "k4.chat.points.lost": "[lightred]-{0} pontos [default]({1})",
+
+  // Round summary
+  "k4.chat.summary.gained": "[lime]Resumo do round: +{0} pontos",
+  "k4.chat.summary.lost": "[lightred]Resumo do round: -{0} pontos",
+
+  // Rank changes
+  "k4.chat.rank.promoted": "[lime]★ Promovido para {0}{1}!",
+  "k4.chat.rank.demoted": "[lightred]★ Rebaixado para {0}{1}!",
+  "k4.chat.rank.reset": "[lime]Seu rank foi resetado.",
+
+  // Settings toggles
+  "k4.chat.setting.messages_on": "[lime]Mensagens de pontos ativadas.",
+  "k4.chat.setting.messages_off": "[gold]Mensagens de pontos desativadas.",
+  "k4.chat.setting.summary_on": "[lime]Resumo do round ativado.",
+  "k4.chat.setting.summary_off": "[gold]Resumo do round desativado.",
+  "k4.chat.setting.rankchanges_on": "[lime]Alertas de mudança de rank ativados.",
+  "k4.chat.setting.rankchanges_off": "[gold]Alertas de mudança de rank desativados.",
+
+  // Playtime
+  "k4.chat.mytime": "Você passou [gold]{0}[default] neste servidor.",
+
+  // Top list positions
+  "k4.chat.top_position": "Você está na posição [gold]#{0}[default] de [gold]{1} jogadores[default].",
+  "k4.chat.ttop_position": "Você está na posição [gold]#{0}[default] de [gold]{1} jogadores[default] em tempo de jogo.",
+
+  // ========== ERROR MESSAGES ==========
+  "k4.error.data_not_loaded": "[lightred]Seus dados ainda estão carregando. Aguarde.",
+  "k4.error.target_not_loaded": "[lightred]Os dados do jogador ainda não foram carregados.",
+  "k4.error.no_target": "[lightred]Nenhum jogador correspondente encontrado.",
+  "k4.error.invalid_points": "[lightred]Valor de pontos inválido.",
+  "k4.error.no_permission": "[lightred]Você não tem permissão para usar este comando.",
+
+  // ========== ADMIN MESSAGES ==========
+  "k4.admin.points_set": "[lime]Definiu os pontos de [gold]{0}[lime] para [gold]{1}[lime].",
+  "k4.admin.points_set_target": "[lime]Seus pontos foram definidos para [gold]{0}[lime].",
+  "k4.admin.points_given": "[lime]Adicionou [gold]{0} pontos [lime]para [gold]{1}[lime].",
+  "k4.admin.points_removed": "[lime]Removeu [gold]{0} pontos [lime]de [gold]{1}[lime].",
+
+  // ========== USAGE ==========
+  "k4.usage.setpoints": "[gray]Use: !setpoints <jogador> <pontos>",
+  "k4.usage.givepoints": "[gray]Use: !givepoints <jogador> <pontos>",
+  "k4.usage.removepoints": "[gray]Use: !removepoints <jogador> <pontos>",
+
+  // ========== FORMAT STRINGS ==========
+  "k4.format.line": "{0}: <font color='#FFD700'>{1}</font>",
+  "k4.format.percent": "{0}%",
+  "k4.format.hours": "{0}h",
+  "k4.format.points": "{0} pts",
+  "k4.format.kills": "{0} K",
+  "k4.format.value_percent": "{0} ({1}%)",
+  "k4.format.position": "#{0} / {1}",
+  "k4.format.max_rank": "* Rank máximo alcançado!",
+  "k4.format.top_entry": "#{0} {1} - {2} pts",
+  "k4.format.day": "d",
+  "k4.format.hour": "h",
+  "k4.format.minute": "m",
+
+  // ========== MENU SYSTEM ==========
+  // Main menu
+  "k4.menu.title": "K4-LevelRanks",
+
+  // Menu items
+  "k4.menu.myrank": "Meu Rank",
+  "k4.menu.mystats": "Meu Stats",
+  "k4.menu.weaponstats": "Estatísticas de Armas",
+  "k4.menu.hitstats": "Estatísticas de Acertos",
+  "k4.menu.top": "Top Jogadores",
+  "k4.menu.ttop": "Top Tempo de Jogo",
+  "k4.menu.allranks": "Todos os Ranks",
+  "k4.menu.settings": "Configurações",
+
+  // Menu categories
+  "k4.menu.category.ranks": "Ranks",
+  "k4.menu.category.stats": "Estatísticas",
+
+  // Stats submenus
+  "k4.menu.stats.combat": "Estatísticas de Combate",
+  "k4.menu.stats.rounds": "Estatísticas de Rounds",
+  "k4.menu.stats.games": "Estatísticas de Partidas",
+  "k4.menu.stats.accuracy": "Estatísticas de Precisão",
+
+  // Settings menu options
+  "k4.menu.setting.messages": "Mensagens de Pontos",
+  "k4.menu.setting.summary": "Resumo do Round",
+  "k4.menu.setting.rankchanges": "Alertas de Mudança de Rank",
+
+  // Menu messages
+  "k4.menu.loading": "Carregando...",
+  "k4.menu.top.empty": "Ainda não há jogadores ranqueados.",
+  "k4.menu.weapon.nodata": "Nenhum dado de arma registrado ainda.",
+
+  // ========== SHARED LABELS ==========
+  "k4.label.points": "Pontos",
+  "k4.label.kills": "Abates",
+  "k4.label.deaths": "Mortes",
+  "k4.label.kdr": "Taxa K/D",
+  "k4.label.headshots": "Headshots",
+  "k4.label.assists": "Assistências",
+  "k4.label.damage": "Dano",
+  "k4.label.shots": "Disparos",
+  "k4.label.hits": "Acertos",
+  "k4.label.accuracy": "Precisão",
+  "k4.label.winrate": "Taxa de Vitória",
+  "k4.label.playtime": "Tempo de Jogo",
+  "k4.label.current_rank": "Rank Atual",
+  "k4.label.position": "Posição",
+  "k4.label.next_rank": "Próximo Rank",
+  "k4.label.points_needed": "Pontos Necessários",
+  "k4.label.max_rank": "Rank Máximo",
+  "k4.label.rounds_played": "Rounds Jogados",
+  "k4.label.rounds_won": "Rounds Vencidos",
+  "k4.label.rounds_lost": "Rounds Perdidos",
+  "k4.label.games_played": "Partidas Jogadas",
+  "k4.label.games_won": "Partidas Vencidas",
+  "k4.label.games_lost": "Partidas Perdidas",
+  "k4.label.total": "Total",
+  "k4.label.head": "Cabeça",
+  "k4.label.chest": "Peito",
+  "k4.label.stomach": "Estômago",
+  "k4.label.arms": "Braços",
+  "k4.label.legs": "Pernas",
+
+  // ========== WEAPON NAMES ==========
+  "k4.weapon.ak47": "AK-47",
+  "k4.weapon.m4a1": "M4A1",
+  "k4.weapon.m4a1_silencer": "M4A1-S",
+  "k4.weapon.awp": "AWP",
+  "k4.weapon.deagle": "Desert Eagle",
+  "k4.weapon.usp_silencer": "USP-S",
+  "k4.weapon.glock": "Glock-18",
+  "k4.weapon.p250": "P250",
+  "k4.weapon.fiveseven": "Five-SeveN",
+  "k4.weapon.tec9": "Tec-9",
+  "k4.weapon.cz75a": "CZ75-Auto",
+  "k4.weapon.elite": "Dual Berettas",
+  "k4.weapon.revolver": "R8 Revolver",
+  "k4.weapon.hkp2000": "P2000",
+  "k4.weapon.mp9": "MP9",
+  "k4.weapon.mac10": "MAC-10",
+  "k4.weapon.mp7": "MP7",
+  "k4.weapon.mp5sd": "MP5-SD",
+  "k4.weapon.ump45": "UMP-45",
+  "k4.weapon.p90": "P90",
+  "k4.weapon.bizon": "PP-Bizon",
+  "k4.weapon.famas": "FAMAS",
+  "k4.weapon.galilar": "Galil AR",
+  "k4.weapon.aug": "AUG",
+  "k4.weapon.sg556": "SG 553",
+  "k4.weapon.ssg08": "SSG 08",
+  "k4.weapon.scar20": "SCAR-20",
+  "k4.weapon.g3sg1": "G3SG1",
+  "k4.weapon.nova": "Nova",
+  "k4.weapon.xm1014": "XM1014",
+  "k4.weapon.mag7": "MAG-7",
+  "k4.weapon.sawedoff": "Sawed-Off",
+  "k4.weapon.m249": "M249",
+  "k4.weapon.negev": "Negev",
+  "k4.weapon.knife": "Faca",
+  "k4.weapon.taser": "Zeus x27",
+  "k4.weapon.hegrenade": "HE Granada",
+  "k4.weapon.molotov": "Molotov",
+  "k4.weapon.incgrenade": "Incendiária",
+  "k4.weapon.flashbang": "Flashbang",
+  "k4.weapon.smokegrenade": "Granada de Fumaça",
+  "k4.weapon.decoy": "Decoy"
+}
