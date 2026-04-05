@@ -28,7 +28,7 @@ public sealed class PlayerHurtHandler(PluginConfig config, ModuleConfig modules,
 		var victim = @event.UserIdPlayer;
 
 		// Basic validation
-		if (!attacker.IsValid || !victim.IsValid)
+		if (attacker == null || !attacker.IsValid || !victim.IsValid)
 			return HookResult.Continue;
 
 		if (attacker.IsFakeClient)
