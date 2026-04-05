@@ -55,4 +55,37 @@ public interface IK4RanksApi
 	/// <summary>Get total number of ranked players.</summary>
 	/// <returns>The total number of players in the ranking system.</returns>
 	Task<int> GetTotalPlayersAsync();
+
+	// =========================================
+	// =       SCOREBOARD RANK DISPLAY
+	// =========================================
+
+	/// <summary>
+	/// Forces an immediate scoreboard rank refresh for the given player,
+	/// reflecting any active virtual override or their real rank if none is set.
+	/// </summary>
+	void UpdatePlayerScoreboard(IPlayer player);
+
+	/// <summary>
+	/// Virtually overrides the rank icon and point value shown for a player in the
+	/// CS2 scoreboard. Both the rank icon (all modes) and the Premier-mode point
+	/// number are derived from <paramref name="points"/>. The player's actual points,
+	/// stats, and database record are completely unaffected. The override is
+	/// session-only — it is never persisted and is cleared when the player disconnects.
+	/// </summary>
+	/// <param name="player">The target player.</param>
+	/// <param name="points">Virtual point value to display on the scoreboard.</param>
+	void SetScoreboardRankOverride(IPlayer player, int points);
+
+	/// <summary>
+	/// Clears a previously set virtual rank override so the scoreboard reverts to
+	/// showing the rank derived from the player's real points.
+	/// </summary>
+	void ClearScoreboardRankOverride(IPlayer player);
+
+	/// <summary>
+	/// Returns the active virtual point override for the player, or <c>null</c> if no
+	/// override is set and the real computed rank is being displayed.
+	/// </summary>
+	int? GetScoreboardRankOverride(IPlayer player);
 }

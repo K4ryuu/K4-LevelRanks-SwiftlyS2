@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using SwiftlyS2.Shared;
 using SwiftlyS2.Shared.Players;
 using SwiftlyS2.Shared.ProtobufDefinitions;
@@ -14,6 +15,81 @@ public sealed class ScoreboardService(Plugin plugin)
 	private readonly ISwiftlyCore _core = Plugin.Core;
 	private bool _isRunning;
 
+	/// <summary>
+	/// Per-player virtual point overrides.
+	/// When set, both the displayed rank icon and the displayed point value are
+	/// derived from this virtual points figure rather than the player's real points.
+	/// The actual <see cref="PlayerData.Points"/> value is never modified.
+	/// </summary>
+	private readonly ConcurrentDictionary<ulong, int> _pointOverrides = new();
+
+	/// <summary>
+	/// Cached scoreboard values computed on <c>round_prestart</c> (or immediately
+	/// when an override is set). The tick handler reads this cache and writes it to
+	/// the controller every frame so the rank icon stays visible continuously.
+	/// </summary>
+	private readonly ConcurrentDictionary<ulong, (int RankId, int DisplayPoints)> _cachedRanks = new();
+
+	/* ==================== Rank Overrides ==================== */
+
+	/// <summary>
+	/// Virtually overrides the scoreboard-displayed rank and point value for a player.
+	/// Both the rank icon and the Premier-mode point number shown in the CS2 scoreboard
+	/// are derived from <paramref name="virtualPoints"/>. The player's actual
+	/// <see cref="PlayerData.Points"/> is never modified.
+	/// </summary>
+	/// <param name="steamId">64-bit Steam ID of the target player.</param>
+	/// <param name="virtualPoints">Virtual point value to display on the scoreboard.</param>
+	public void SetPointOverride(ulong steamId, int virtualPoints) =>
+		_pointOverrides[steamId] = virtualPoints;
+
+	/// <summary>
+	/// Removes a previously set virtual point override so the scoreboard reverts to
+	/// displaying the rank computed from the player's real points.
+	/// </summary>
+	public void ClearPointOverride(ulong steamId) =>
+		_pointOverrides.TryRemove(steamId, out _);
+
+	/// <summary>
+	/// Returns whether a virtual point override is active for the given player, and
+	/// the override value if so.
+	/// </summary>
+	public bool TryGetPointOverride(ulong steamId, out int virtualPoints) =>
+		_pointOverrides.TryGetValue(steamId, out virtualPoints);
+
+	/// <summary>
+	/// Removes the cached rank entry for a player. Call on disconnect to prevent
+	/// stale data accumulating in <see cref="_cachedRanks"/>.
+	/// </summary>
+	public void RemoveCachedRank(ulong steamId)
+	{
+		_cachedRanks.TryRemove(steamId, out _);
+		_pointOverrides.TryRemove(steamId, out _);
+	}
+
+	/* ==================== Per-Player Refresh ==================== */
+
+	/// <summary>
+	/// Recalculates and caches the effective scoreboard rank for a single player,
+	/// then applies it immediately. Use this after setting or clearing an override
+	/// so the icon updates without waiting for the next <c>round_prestart</c>.
+	/// </summary>
+	public void UpdatePlayerScoreboard(IPlayer player)
+	{
+		if (!plugin.Config.CurrentValue.Scoreboard.UseRanks)
+			return;
+
+		if (!player.IsValid || player.IsFakeClient)
+			return;
+
+		var data = plugin.PlayerData.GetPlayerData(player);
+		if (data == null || !data.IsLoaded)
+			return;
+
+		var cfg = plugin.Config.CurrentValue.Scoreboard;
+		CacheAndApplyScoreboardRank(player, data, cfg);
+	}
+
 	/* ==================== Start / Stop ==================== */
 
 	public void Start()
@@ -24,7 +100,7 @@ public sealed class ScoreboardService(Plugin plugin)
 		_isRunning = true;
 
 		if (plugin.Config.CurrentValue.Scoreboard.UseRanks)
-			_core.Event.OnTick += UpdateScoreboards;
+			_core.Event.OnTick += ApplyAllCachedScoreboards;
 
 		if (plugin.Config.CurrentValue.Scoreboard.RevealAllInterval > 0)
 			StartRevealAllTimer();
@@ -36,7 +112,7 @@ public sealed class ScoreboardService(Plugin plugin)
 			return;
 
 		_isRunning = false;
-		_core.Event.OnTick -= UpdateScoreboards;
+		_core.Event.OnTick -= ApplyAllCachedScoreboards;
 	}
 
 	/* ==================== Reveal All ==================== */
@@ -75,15 +151,17 @@ public sealed class ScoreboardService(Plugin plugin)
 
 	/* ==================== Scoreboard Updates ==================== */
 
-	private void UpdateScoreboards()
+	/// <summary>
+	/// Recalculates and caches the effective rank for every loaded player.
+	/// Called on <c>round_prestart</c> — rank values are computed once per round
+	/// and then replayed every tick by <see cref="ApplyAllCachedScoreboards"/>.
+	/// </summary>
+	public void UpdateAllScoreboards()
 	{
 		if (!plugin.Config.CurrentValue.Scoreboard.UseRanks)
 			return;
 
-		var mode = plugin.Config.CurrentValue.Scoreboard.RankMode;
-		var rankMax = plugin.Config.CurrentValue.Scoreboard.CustomRankMax;
-		var rankBase = plugin.Config.CurrentValue.Scoreboard.CustomRankBase;
-		var rankMargin = plugin.Config.CurrentValue.Scoreboard.CustomRankMargin;
+		var cfg = plugin.Config.CurrentValue.Scoreboard;
 
 		foreach (var player in _core.PlayerManager.GetAllPlayers())
 		{
@@ -94,9 +172,54 @@ public sealed class ScoreboardService(Plugin plugin)
 			if (data == null || !data.IsLoaded)
 				continue;
 
-			var rankId = plugin.Ranks.GetRankId(data.Points);
-			SetCompetitiveRank(player, mode, rankId, data.Points, rankMax, rankBase, rankMargin);
+			CacheAndApplyScoreboardRank(player, data, cfg);
 		}
+	}
+
+	/// <summary>
+	/// Tick handler — writes the cached rank values to every player's controller
+	/// fields so the rank icon remains visible every frame.
+	/// No rank recalculation happens here; that is done in
+	/// <see cref="UpdateAllScoreboards"/> on <c>round_prestart</c>.
+	/// </summary>
+	private void ApplyAllCachedScoreboards()
+	{
+		if (!plugin.Config.CurrentValue.Scoreboard.UseRanks)
+			return;
+
+		var cfg = plugin.Config.CurrentValue.Scoreboard;
+
+		foreach (var player in _core.PlayerManager.GetAllPlayers())
+		{
+			if (!player.IsValid || player.IsFakeClient)
+				continue;
+
+			if (!_cachedRanks.TryGetValue(player.SteamID, out var cached))
+				continue;
+
+			SetCompetitiveRank(player, cfg.RankMode, cached.RankId, cached.DisplayPoints,
+				cfg.CustomRankMax, cfg.CustomRankBase, cfg.CustomRankMargin);
+		}
+	}
+
+	/// <summary>
+	/// Computes the effective rank (real or virtual), stores it in the cache, and
+	/// applies it to the player's controller immediately.
+	/// When a virtual point override is active, both the rank icon and the
+	/// Premier-mode point number are derived from that override value.
+	/// </summary>
+	private void CacheAndApplyScoreboardRank(IPlayer player, PlayerData data, ScoreboardSettings cfg)
+	{
+		int effectivePoints = TryGetPointOverride(data.SteamId64, out var virtualPoints)
+			? virtualPoints
+			: data.Points;
+
+		int rankId = plugin.Ranks.GetRankId(effectivePoints);
+
+		_cachedRanks[data.SteamId64] = (rankId, effectivePoints);
+
+		SetCompetitiveRank(player, cfg.RankMode, rankId, effectivePoints,
+			cfg.CustomRankMax, cfg.CustomRankBase, cfg.CustomRankMargin);
 	}
 
 	private static void SetCompetitiveRank(

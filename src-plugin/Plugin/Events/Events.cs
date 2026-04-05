@@ -126,6 +126,7 @@ public sealed partial class Plugin
 
 	private void RegisterRoundEvents()
 	{
+		Core.GameEvent.HookPost<EventRoundPrestart>(OnRoundPrestart);
 		Core.GameEvent.HookPost<EventRoundStart>(OnRoundStart);
 		Core.GameEvent.HookPost<EventRoundEnd>(OnRoundEnd);
 	}
@@ -163,10 +164,17 @@ public sealed partial class Plugin
 		{
 			await PlayerData.SavePlayerDataAsync(steamId);
 			PlayerData.RemovePlayer(steamId);
+			Scoreboard.RemoveCachedRank(steamId);
 		});
 	}
 
 	/* ==================== Round Events ==================== */
+
+	private HookResult OnRoundPrestart(EventRoundPrestart @event)
+	{
+		Scoreboard.UpdateAllScoreboards();
+		return HookResult.Continue;
+	}
 
 	private HookResult OnRoundStart(EventRoundStart @event)
 	{

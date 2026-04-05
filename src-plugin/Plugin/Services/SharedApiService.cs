@@ -141,5 +141,29 @@ public sealed partial class Plugin
 		{
 			return await _plugin.Database.GetTotalPlayersAsync();
 		}
+
+		public void UpdatePlayerScoreboard(IPlayer player)
+		{
+			_plugin.Scoreboard.UpdatePlayerScoreboard(player);
+		}
+
+		public void SetScoreboardRankOverride(IPlayer player, int points)
+		{
+			_plugin.Scoreboard.SetPointOverride(player.SteamID, points);
+			_plugin.Scoreboard.UpdatePlayerScoreboard(player);
+		}
+
+		public void ClearScoreboardRankOverride(IPlayer player)
+		{
+			_plugin.Scoreboard.ClearPointOverride(player.SteamID);
+			_plugin.Scoreboard.UpdatePlayerScoreboard(player);
+		}
+
+		public int? GetScoreboardRankOverride(IPlayer player)
+		{
+			return _plugin.Scoreboard.TryGetPointOverride(player.SteamID, out var virtualPoints)
+				? virtualPoints
+				: null;
+		}
 	}
 }

@@ -86,7 +86,7 @@ public sealed partial class Plugin
 				{
 					Steam = visibleSteamId,
 					SteamId64 = steamId64,
-					Name = player?.Controller?.PlayerName ?? "Unknown",
+					Name = SanitizeName(player?.Controller?.PlayerName),
 					Value = startPoints,
 					Rank = _plugin.Ranks.GetRankId(startPoints),
 					IsLoaded = true,
@@ -95,11 +95,36 @@ public sealed partial class Plugin
 			}
 
 			data.SteamId64 = steamId64;
-			data.Name = player?.Controller?.PlayerName ?? data.Name;
+			data.Name = SanitizeName(player?.Controller?.PlayerName) ?? data.Name;
 			data.Rank = _plugin.Ranks.GetRankId(data.Points);
 			data.IsLoaded = true;
 
 			return data;
+		}
+
+		/// <summary>
+		/// Sanitizes a player name for safe database storage.
+		/// Removes null bytes (rejected by MySQL VARCHAR columns regardless of charset)
+		/// and truncates to the maximum column length.
+		/// Supplementary Unicode characters (code points > U+FFFF) such as Mathematical
+		/// Fraktur, emoji, and other non-BMP scripts are preserved — the name column
+		/// uses utf8mb4 (see M005_NameColumnUtf8mb4) which supports the full Unicode range.
+		/// </summary>
+		private static string? SanitizeName(string? name)
+		{
+			if (string.IsNullOrEmpty(name))
+				return null;
+
+			var sb = new System.Text.StringBuilder(name.Length);
+			foreach (var c in name)
+			{
+				if (c == '\0') continue;               // null byte – MySQL VARCHAR rejects this
+				sb.Append(c);
+			}
+
+			const int MaxNameLength = 128;             // must match M004_ExtendNameColumn
+			var result = sb.ToString();
+			return result.Length > MaxNameLength ? result[..MaxNameLength] : result;
 		}
 
 		private async Task LoadPlayerSettings(PlayerData data, string visibleSteamId)
