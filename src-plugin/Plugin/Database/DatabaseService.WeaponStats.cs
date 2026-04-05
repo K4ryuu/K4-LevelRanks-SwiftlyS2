@@ -18,7 +18,7 @@ public sealed partial class Plugin
 		// =           LOAD OPERATIONS
 		// =========================================
 
-		public async Task<List<WeaponStatRecord>> LoadWeaponStatsAsync(string visibleSteamId)
+		public async Task<List<WeaponStatRecord>> LoadWeaponStatsAsync(string steamId)
 		{
 			if (!IsEnabled || !_modules.WeaponStatsEnabled)
 				return [];
@@ -28,12 +28,12 @@ public sealed partial class Plugin
 				using var connection = Core.Database.GetConnection(_connectionName);
 				connection.Open();
 
-				var result = await connection.SelectAsync<WeaponStatRecord>(w => w.Steam == visibleSteamId);
+				var result = await connection.SelectAsync<WeaponStatRecord>(w => w.Steam == steamId);
 				return [.. result];
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to load weapon stats for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to load weapon stats for {Steam}", steamId);
 				return [];
 			}
 		}
@@ -42,7 +42,7 @@ public sealed partial class Plugin
 		// =           SAVE OPERATIONS
 		// =========================================
 
-		public async Task SaveWeaponStatsAsync(string visibleSteamId, IEnumerable<WeaponStat> stats)
+		public async Task SaveWeaponStatsAsync(string steamId, IEnumerable<WeaponStat> stats)
 		{
 			if (!IsEnabled || !_modules.WeaponStatsEnabled)
 				return;
@@ -60,7 +60,7 @@ public sealed partial class Plugin
 				{
 					var record = new WeaponStatRecord
 					{
-						Steam = visibleSteamId,
+						Steam = steamId,
 						Classname = stat.WeaponClassname,
 						Kills = stat.Kills,
 						Deaths = stat.Deaths,
@@ -84,7 +84,7 @@ public sealed partial class Plugin
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to save weapon stats for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to save weapon stats for {Steam}", steamId);
 			}
 		}
 	}

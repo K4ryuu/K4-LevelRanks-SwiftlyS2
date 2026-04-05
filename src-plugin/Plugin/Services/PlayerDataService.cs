@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using SwiftlyS2.Shared.Players;
-using SwiftlyS2.Shared.SteamAPI;
 
 namespace K4Ranks;
 
@@ -39,21 +38,21 @@ public sealed partial class Plugin
                 return;
 
             var steamId64 = player.SteamID;
-			var visibleSteamId = SteamIdParser.ToSteamId(steamId64);
+			var steamId = steamId64.ToString();
 
 			try
 			{
-				var data = await LoadOrCreatePlayerData(player, steamId64, visibleSteamId);
+				var data = await LoadOrCreatePlayerData(player, steamId64);
 
 				if (data == null)
 				{
-					Core.Logger.LogWarning("Failed to load or create player data for {Steam}. Player disconnected before data could be loaded", visibleSteamId);
+					Core.Logger.LogWarning("Failed to load or create player data for {Steam}. Player disconnected before data could be loaded", steamId);
                     return;
 				}
 
-					await LoadPlayerSettings(data, visibleSteamId);
-				var weaponStatsCount = await LoadWeaponStats(data, visibleSteamId);
-				await LoadHitData(data, visibleSteamId);
+					await LoadPlayerSettings(data, steamId);
+				var weaponStatsCount = await LoadWeaponStats(data, steamId);
+				await LoadHitData(data, steamId);
 
 				_playerData[steamId64] = data;
 
@@ -68,24 +67,24 @@ public sealed partial class Plugin
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to load player data for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to load player data for {Steam}", steamId);
 			}
 		}
 
-		private async Task<PlayerData?> LoadOrCreatePlayerData(IPlayer? player, ulong steamId64, string visibleSteamId)
+		private async Task<PlayerData?> LoadOrCreatePlayerData(IPlayer? player, ulong steamId64)
 		{
             if (player == null || !player.IsValid)
                 return null;
 
-            var data = await _plugin.Database.LoadPlayerAsync(visibleSteamId);
+            var steamId = steamId64.ToString();
+            var data = await _plugin.Database.LoadPlayerAsync(steamId);
 
 			if (data == null)
 			{
 				var startPoints = _plugin.Config.CurrentValue.Rank.StartPoints;
 				return new PlayerData
 				{
-					Steam = visibleSteamId,
-					SteamId64 = steamId64,
+					Steam = steamId,
 					Name = SanitizeName(player?.Controller?.PlayerName),
 					Value = startPoints,
 					Rank = _plugin.Ranks.GetRankId(startPoints),
@@ -94,7 +93,6 @@ public sealed partial class Plugin
 				};
 			}
 
-			data.SteamId64 = steamId64;
 			data.Name = SanitizeName(player?.Controller?.PlayerName) ?? data.Name;
 			data.Rank = _plugin.Ranks.GetRankId(data.Points);
 			data.IsLoaded = true;
@@ -127,30 +125,30 @@ public sealed partial class Plugin
 			return result.Length > MaxNameLength ? result[..MaxNameLength] : result;
 		}
 
-		private async Task LoadPlayerSettings(PlayerData data, string visibleSteamId)
+		private async Task LoadPlayerSettings(PlayerData data, string steamId)
 		{
-			var settings = await _plugin.Database.LoadPlayerSettingsAsync(visibleSteamId);
-			data.Settings = settings ?? new PlayerSettings { Steam = visibleSteamId };
+			var settings = await _plugin.Database.LoadPlayerSettingsAsync(steamId);
+			data.Settings = settings ?? new PlayerSettings { Steam = steamId };
 		}
 
-		private async Task<int> LoadWeaponStats(PlayerData data, string visibleSteamId)
+		private async Task<int> LoadWeaponStats(PlayerData data, string steamId)
 		{
 			if (!_plugin.Modules.CurrentValue.WeaponStatsEnabled)
 				return 0;
 
-			var weaponStats = await _plugin.Database.LoadWeaponStatsAsync(visibleSteamId);
+			var weaponStats = await _plugin.Database.LoadWeaponStatsAsync(steamId);
 			data.WeaponStats.LoadFrom(weaponStats);
 
 			return weaponStats.Count;
 		}
 
-		private async Task LoadHitData(PlayerData data, string visibleSteamId)
+		private async Task LoadHitData(PlayerData data, string steamId)
 		{
 			if (!_plugin.Modules.CurrentValue.HitStatsEnabled)
 				return;
 
-			var hitData = await _plugin.Database.LoadHitDataAsync(visibleSteamId);
-			data.HitData = hitData ?? new HitData { Steam = visibleSteamId };
+			var hitData = await _plugin.Database.LoadHitDataAsync(steamId);
+			data.HitData = hitData ?? new HitData { Steam = steamId };
 		}
 
 		/* ==================== Save ==================== */

@@ -1,6 +1,5 @@
 using K4RanksSharedApi;
 using SwiftlyS2.Shared.Players;
-using SwiftlyS2.Shared.SteamAPI;
 
 namespace K4Ranks;
 
@@ -133,8 +132,8 @@ public sealed partial class Plugin
 
 		public async Task<int> GetPlayerPositionAsync(IPlayer player)
 		{
-			var visibleSteamId = SteamIdParser.ToSteamId(player.SteamID);
-			return await _plugin.Database.GetPlayerRankPositionAsync(visibleSteamId);
+			var steamId = player.SteamID.ToString();
+			return await _plugin.Database.GetPlayerRankPositionAsync(steamId);
 		}
 
 		public async Task<int> GetTotalPlayersAsync()

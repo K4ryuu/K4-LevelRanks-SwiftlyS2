@@ -20,7 +20,7 @@ public sealed partial class Plugin
 		// =           LOAD OPERATIONS
 		// =========================================
 
-		public async Task<PlayerSettings?> LoadPlayerSettingsAsync(string visibleSteamId)
+		public async Task<PlayerSettings?> LoadPlayerSettingsAsync(string steamId)
 		{
 			if (!IsEnabled)
 				return null;
@@ -30,11 +30,11 @@ public sealed partial class Plugin
 				using var connection = Core.Database.GetConnection(_connectionName);
 				connection.Open();
 
-				return await connection.GetAsync<PlayerSettings>(visibleSteamId);
+				return await connection.GetAsync<PlayerSettings>(steamId);
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to load settings for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to load settings for {Steam}", steamId);
 				return null;
 			}
 		}
@@ -43,14 +43,14 @@ public sealed partial class Plugin
 		// =           SAVE OPERATIONS
 		// =========================================
 
-		public async Task SavePlayerSettingsAsync(string visibleSteamId, PlayerSettings settings)
+		public async Task SavePlayerSettingsAsync(string steamId, PlayerSettings settings)
 		{
 			if (!IsEnabled)
 				return;
 
 			try
 			{
-				settings.Steam = visibleSteamId;
+				settings.Steam = steamId;
 
 				using var connection = Core.Database.GetConnection(_connectionName);
 				connection.Open();
@@ -68,7 +68,7 @@ public sealed partial class Plugin
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to save settings for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to save settings for {Steam}", steamId);
 			}
 		}
 

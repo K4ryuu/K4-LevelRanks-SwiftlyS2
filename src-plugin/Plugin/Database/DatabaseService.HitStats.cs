@@ -18,7 +18,7 @@ public sealed partial class Plugin
 		// =           LOAD OPERATIONS
 		// =========================================
 
-		public async Task<HitData?> LoadHitDataAsync(string visibleSteamId)
+		public async Task<HitData?> LoadHitDataAsync(string steamId)
 		{
 			if (!IsEnabled || !_modules.HitStatsEnabled)
 				return null;
@@ -28,11 +28,11 @@ public sealed partial class Plugin
 				using var connection = Core.Database.GetConnection(_connectionName);
 				connection.Open();
 
-				return await connection.GetAsync<HitData>(visibleSteamId);
+				return await connection.GetAsync<HitData>(steamId);
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to load hit data for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to load hit data for {Steam}", steamId);
 				return null;
 			}
 		}

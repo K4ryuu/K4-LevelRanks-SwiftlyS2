@@ -12,7 +12,7 @@ public sealed partial class Plugin
 		// =           LOAD OPERATIONS
 		// =========================================
 
-		public async Task<PlayerData?> LoadPlayerAsync(string visibleSteamId)
+		public async Task<PlayerData?> LoadPlayerAsync(string steamId)
 		{
 			if (!IsEnabled)
 				return null;
@@ -22,11 +22,11 @@ public sealed partial class Plugin
 				using var connection = Core.Database.GetConnection(_connectionName);
 				connection.Open();
 
-				return await connection.GetAsync<PlayerData>(visibleSteamId);
+				return await connection.GetAsync<PlayerData>(steamId);
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to load player {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to load player {Steam}", steamId);
 				return null;
 			}
 		}
@@ -106,7 +106,7 @@ public sealed partial class Plugin
 		// =           QUERY OPERATIONS
 		// =========================================
 
-		public async Task<int> GetPlayerRankPositionAsync(string visibleSteamId)
+		public async Task<int> GetPlayerRankPositionAsync(string steamId)
 		{
 			if (!IsEnabled)
 				return -1;
@@ -117,7 +117,7 @@ public sealed partial class Plugin
 				connection.Open();
 
 				// Get player's current value
-				var player = await connection.GetAsync<PlayerData>(visibleSteamId);
+				var player = await connection.GetAsync<PlayerData>(steamId);
 				if (player == null)
 					return -1;
 
@@ -127,12 +127,12 @@ public sealed partial class Plugin
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to get rank position for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to get rank position for {Steam}", steamId);
 				return -1;
 			}
 		}
 
-		public async Task<int> GetPlayerRankPositionByTimeAsync(string visibleSteamId)
+		public async Task<int> GetPlayerRankPositionByTimeAsync(string steamId)
 		{
 			if (!IsEnabled)
 				return -1;
@@ -143,7 +143,7 @@ public sealed partial class Plugin
 				connection.Open();
 
 				// Get player's current playtime
-				var player = await connection.GetAsync<PlayerData>(visibleSteamId);
+				var player = await connection.GetAsync<PlayerData>(steamId);
 				if (player == null)
 					return -1;
 
@@ -153,7 +153,7 @@ public sealed partial class Plugin
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to get rank position by time for {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to get rank position by time for {Steam}", steamId);
 				return -1;
 			}
 		}

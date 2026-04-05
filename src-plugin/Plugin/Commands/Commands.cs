@@ -1,7 +1,6 @@
 using K4Ranks.Menus;
 using SwiftlyS2.Shared.Commands;
 using SwiftlyS2.Shared.Players;
-using SwiftlyS2.Shared.SteamAPI;
 
 namespace K4Ranks;
 
@@ -98,8 +97,8 @@ public sealed partial class Plugin
 		// Show player's position in chat
 		Task.Run(async () =>
 		{
-			var visibleSteamId = SteamIdParser.ToSteamId(player.SteamID);
-			var position = await Database.GetPlayerRankPositionAsync(visibleSteamId);
+			var steamId = player.SteamID.ToString();
+			var position = await Database.GetPlayerRankPositionAsync(steamId);
 			var totalPlayers = await Database.GetTotalPlayersAsync();
 
 			if (position > 0 && totalPlayers > 0)
@@ -136,8 +135,8 @@ public sealed partial class Plugin
 
 	private async Task ResetPlayerRankAsync(IPlayer player, PlayerData data)
 	{
-		var visibleSteamId = SteamIdParser.ToSteamId(player.SteamID);
-		await Database.ResetPlayerAsync(visibleSteamId);
+		var steamId = player.SteamID.ToString();
+		await Database.ResetPlayerAsync(steamId);
 
 		data.Reset(Config.CurrentValue.Rank.StartPoints);
 
@@ -200,8 +199,8 @@ public sealed partial class Plugin
 		// Show player's position in chat
 		Task.Run(async () =>
 		{
-			var visibleSteamId = SteamIdParser.ToSteamId(player.SteamID);
-			var position = await Database.GetPlayerRankPositionByTimeAsync(visibleSteamId);
+			var steamId = player.SteamID.ToString();
+			var position = await Database.GetPlayerRankPositionByTimeAsync(steamId);
 			var totalPlayers = await Database.GetTotalPlayersAsync();
 
 			if (position > 0 && totalPlayers > 0)

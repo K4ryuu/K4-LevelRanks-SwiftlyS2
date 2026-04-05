@@ -95,28 +95,28 @@ public sealed partial class Plugin
 			}
 		}
 
-		public async Task ResetPlayerAsync(string visibleSteamId)
+		public async Task ResetPlayerAsync(string steamId)
 		{
 			if (!IsEnabled)
 				return;
 
 			try
 			{
-				await ResetPlayerStatsAsync(visibleSteamId);
-				await ResetPlayerModuleDataAsync(visibleSteamId);
+				await ResetPlayerStatsAsync(steamId);
+				await ResetPlayerModuleDataAsync(steamId);
 			}
 			catch (Exception ex)
 			{
-				Core.Logger.LogError(ex, "Failed to reset player {Steam}", visibleSteamId);
+				Core.Logger.LogError(ex, "Failed to reset player {Steam}", steamId);
 			}
 		}
 
-		private async Task ResetPlayerStatsAsync(string visibleSteamId)
+		private async Task ResetPlayerStatsAsync(string steamId)
 		{
 			using var connection = Core.Database.GetConnection(_connectionName);
 			connection.Open();
 
-			var player = await connection.GetAsync<PlayerData>(visibleSteamId);
+			var player = await connection.GetAsync<PlayerData>(steamId);
 			if (player == null)
 				return;
 
@@ -141,19 +141,19 @@ public sealed partial class Plugin
 			await connection.UpdateAsync(player);
 		}
 
-		private async Task ResetPlayerModuleDataAsync(string visibleSteamId)
+		private async Task ResetPlayerModuleDataAsync(string steamId)
 		{
 			using var connection = Core.Database.GetConnection(_connectionName);
 			connection.Open();
 
 			if (_modules.WeaponStatsEnabled)
 			{
-				await connection.DeleteMultipleAsync<WeaponStatRecord>(w => w.Steam == visibleSteamId);
+				await connection.DeleteMultipleAsync<WeaponStatRecord>(w => w.Steam == steamId);
 			}
 
 			if (_modules.HitStatsEnabled)
 			{
-				var hitData = await connection.GetAsync<HitData>(visibleSteamId);
+				var hitData = await connection.GetAsync<HitData>(steamId);
 				if (hitData != null)
 				{
 					await connection.DeleteAsync(hitData);

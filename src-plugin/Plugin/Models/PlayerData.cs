@@ -15,7 +15,7 @@ public sealed class PlayerData
 	// =    LVL RANKS COMPATIBLE FIELDS
 	// =========================================
 
-	/// <summary>Steam ID in STEAM_X:X:XXXXXX format (stored as string in DB)</summary>
+	/// <summary>SteamID64 in decimal string form (e.g. "76561198XXXXXXXXX"), stored as the primary key in DB</summary>
 	[Key]
 	[DatabaseGenerated(DatabaseGeneratedOption.None)]
 	[Column("steam")]
@@ -109,8 +109,9 @@ public sealed class PlayerData
 	// =    RUNTIME DATA (NOT IN DB)
 	// =========================================
 
+	/// <summary>SteamID64 parsed from the <see cref="Steam"/> key; 0 if Steam is not yet set.</summary>
 	[Ignore]
-	public ulong SteamId64 { get; set; }
+	public ulong SteamId64 => ulong.TryParse(Steam, out var id) ? id : 0;
 	[Ignore]
 	public int RoundPoints { get; set; }
 	[Ignore]
@@ -181,7 +182,7 @@ public sealed class PlayerData
 	// =========================================
 
 	[Ignore]
-	public int Points { get => Value; set => Value = value; }
+	public int Points { get => Value; set => Value = Math.Max(0, value); }
 	[Ignore]
 	public string PlayerName { get => Name; set => Name = value; }
 	[Ignore]
